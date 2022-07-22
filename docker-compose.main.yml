@@ -1,0 +1,125 @@
+version: "3.9"
+
+x-lely-demo-common:
+  environment:
+    &lely-demo-common-env
+    MONGODB_URI: "${MONGODB_URI}"
+    DB_NAME: "${DB_NAME}"
+  volumes:
+    - "${VOLUME_MOUNT}"
+
+x-lely-demo-celey:
+  environment:
+    &lely-demo-celery-env
+    <<: *lely-demo-common-env
+    CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
+    CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+
+services:
+
+  nginx:
+    image: nginx
+    container_name: lely-demo_nginx
+    volumes:
+      - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
+      - ./conf/nginx/certificate.conf:/etc/nginx/certificate.conf:ro
+      - ./logs/nginx:/var/log/nginx
+      - ./conf/nginx/app_docker.conf:/etc/nginx/sites-enabled/app_docker.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # certificate of the host machine
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api_prod
+    profiles:
+      - live_prod
+
+  api_test:
+    container_name: lely-demo_api_test
+    image: lely-demo_api_img
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      <<: *lely-demo-common-env
+    command: pytest -v
+    depends_on:
+      - mongo
+    profiles:
+      - test
+
+  api_prod:
+    container_name: lely-demo_api_prod
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    image: lely-demo_api_img
+    environment:
+      <<: *lely-demo-common-env
+    command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
+    depends_on:
+      - mongo
+    ports:
+      - "8000:8000"
+    profiles:
+      - prod
+
+  celery_test:
+    container_name: lely-demo_celery_test
+    build:
+      context: .
+      dockerfile: celery_app/Dockerfile
+    image: lely-demo_celery_img
+    volumes:
+      - ./logs/celery_app:/opt/celery_app/logs
+      - "${VOLUME_MOUNT}"
+    environment:
+      <<: *lely-demo-celery-env
+    depends_on:
+      - rabbitmq
+      - mongo
+    command: python3.9 -m pytest -v
+    profiles:
+      - test
+
+  celery_prod:
+    container_name: lely-demo_celery_prod
+    build:
+      context: .
+      dockerfile: celery_app/Dockerfile
+    image: lely-demo_celery_img
+    volumes:
+      - ./logs/celery_app:/opt/celery_app/logs
+      - "${VOLUME_MOUNT}"
+    environment:
+      <<: *lely-demo-celery-env
+    depends_on:
+      - rabbitmq
+      - mongo
+    command: sh run.sh
+    profiles:
+      - prod
+      - monitoring
+
+  rabbitmq:
+    container_name: lely-demo_rabbitmq
+    image: rabbitmq:3.8-management
+    restart: on-failure
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  flower:
+    container_name: lely-demo_flower
+    image: mher/flower:latest
+    command: celery --broker=${CELERY_BROKER_URL} flower
+    environment:
+      # <<: *lely-demo-celery-env
+      CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
+      CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+    ports:
+      - "49555:5555"
+    depends_on:
+      - celery_prod
+    profiles:
+      - monitoring
