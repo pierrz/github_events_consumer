@@ -1,4 +1,4 @@
-# lely-demo
+# GitHub Events API consumer 
 
 This repository is a tool to quickly get data
 from [GitHub Events API](https://api.github.com/events) into a Mongo database,
