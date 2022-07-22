@@ -1,6 +1,7 @@
 version: "3.9"
 
 x-lely-demo-common:
+#  &lely-demo-common
   environment:
     &lely-demo-common-env
     MONGODB_URI: "${MONGODB_URI}"
@@ -11,7 +12,6 @@ x-lely-demo-common:
 x-lely-demo-celey:
   environment:
     &lely-demo-celery-env
-    <<: *lely-demo-common-env
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
 
@@ -74,7 +74,10 @@ services:
       - ./logs/celery_app:/opt/celery_app/logs
       - "${VOLUME_MOUNT}"
     environment:
-      <<: *lely-demo-celery-env
+      <<: *lely-demo-common-env
+      #      <<: *lely-demo-celery-env
+      CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
+      CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
     depends_on:
       - rabbitmq
       - mongo
@@ -92,7 +95,10 @@ services:
       - ./logs/celery_app:/opt/celery_app/logs
       - "${VOLUME_MOUNT}"
     environment:
-      <<: *lely-demo-celery-env
+      <<: *lely-demo-common-env
+#      <<: *lely-demo-celery-env
+      CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
+      CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
     depends_on:
       - rabbitmq
       - mongo
@@ -114,9 +120,9 @@ services:
     image: mher/flower:latest
     command: celery --broker=${CELERY_BROKER_URL} flower
     environment:
-      # <<: *lely-demo-celery-env
-      CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
-      CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+      <<: *lely-demo-celery-env
+#      CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
+#      CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
     ports:
       - "49555:5555"
     depends_on:

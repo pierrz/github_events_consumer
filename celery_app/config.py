@@ -21,7 +21,8 @@ class CeleryConfig(BaseSettings):
     imports = [
         "src.tasks.test_task",
         "src.tasks.harvester_task",
-        "src.tasks.pyspark_task"
+        "src.tasks.pyspark_task",
+        "src.tasks.cleaning_task"
     ]
     enable_utc = True
     timezone = "Europe/Amsterdam"
@@ -35,17 +36,10 @@ class CeleryConfig(BaseSettings):
     beat_schedule = {
         # TODO: implement that task separately, only in celery_test
         # 'init-test-task': {'task': 'dummy_task', 'schedule': crontab(minute='*'), 'args': [3]},
-        "harvester-task": {"task": "harvester_task", "schedule": crontab(minute="*"), 'options': {'queue': 'data_pipeline'}},
-        "pyspark-mongo-task": {"task": "pyspark_task", "schedule": crontab(minute="*"), 'options': {'queue': 'data_pipeline'}},
-        # TODO: implement the data pipeline tasks as a chain (not working atm)
-        # 'chain': {
-        #     'task': 'harvester_task',
-        #     'schedule': crontab(minute='*'),
-        #     'options': {
-        #         'queue': 'data_pipeline',
-        #         'link': signature('pyspark_task', options={'queue': 'data_pipeline'})
-        #     }
-        # }
+        "harvester-task": {"task": "harvester_task", "schedule": crontab(minute="*")},
+        "pyspark-mongo-task": {"task": "pyspark_task", "schedule": crontab(minute="*")},
+        # "cleaning-task": {"task": "cleaning_task", "schedule": crontab(minute="0", hour="3")}
+        "cleaning-task": {"task": "cleaning_task", "schedule": crontab(minute="*")}
     }
 
 
@@ -64,6 +58,7 @@ class PySparkConfig(HarvesterConfig):
 
     MONGODB_URI: str = os.getenv("MONGODB_URI")
     DB_NAME = os.getenv("DB_NAME")
+    TASKID_COLLECTION = "taskid"
     PROCESSED_DIR = Path(data_dir_root, "processed")
 
 
