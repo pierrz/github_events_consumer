@@ -10,7 +10,7 @@ from src.pyspark.jobs import SparkJobFromJson
 from worker import celery, logger
 
 
-@celery.task(name="pyspark_task", bind=False)
+@celery.task(name="pyspark_task")
 def run_pyspark(*args):
     """
     Starts the whole module
