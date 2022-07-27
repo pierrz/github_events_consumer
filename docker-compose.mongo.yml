@@ -1,27 +1,27 @@
 version: "3.9"
 
 volumes:
-  lely-demo_db:
-    name: lely-demo_db
+  github_events_consumer_db:
+    name: github_events_consumer_db
 
 services:
 
   mongo:
     image: mongo:5.0.8
-    container_name: lely-demo_mongo
+    container_name: github_events_consumer_mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
     volumes:
-      - lely-demo_db:/data/db
+      - github_events_consumer_db:/data/db
     # TODO: implement authentication for api container calls
     # volumes:
     #  - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
 
   mongo-express:
     image: mongo-express:latest   # 0.54 needs authentication
-    container_name: lely-demo_mongoex
+    container_name: github_events_consumer_mongoex
     restart: always
     ports:
       - "8081:8081"

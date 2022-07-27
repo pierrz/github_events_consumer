@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lely-demo_api"
+name = "github_events_consumer"
 version = "0.1.0"
 description = "FastAPI containers (prod and test)"
 authors = ["Pierre-Edouard Barrault"]

@@ -1,17 +1,17 @@
 version: "3.9"
 
-x-lely-demo-common:
+x-github_events_consumer-common:
   environment:
-    &lely-demo-common-env
+    &github_events_consumer-common-env
     MONGODB_URI: "${MONGODB_URI}"
     DB_NAME: "${DB_NAME}"
   volumes:
     - "${VOLUME_MOUNT}"
 
-x-lely-demo-celey:
+x-github_events_consumer-celery:
   environment:
-    &lely-demo-celery-env
-    <<: *lely-demo-common-env
+    &github_events_consumer-celery-env
+    <<: *github_events_consumer-common-env
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
 
@@ -19,7 +19,7 @@ services:
 
   nginx:
     image: nginx
-    container_name: lely-demo_nginx
+    container_name: github_events_consumer_nginx
     volumes:
       - ./conf/nginx/docker_base.conf:/etc/nginx/nginx.conf:ro
       - ./conf/nginx/certificate.conf:/etc/nginx/certificate.conf:ro
@@ -35,13 +35,13 @@ services:
       - live_prod
 
   api_test:
-    container_name: lely-demo_api_test
-    image: lely-demo_api_img
+    container_name: github_events_consumer_api_test
+    image: github_events_consumer_api_img
     build:
       context: .
       dockerfile: api/Dockerfile
     environment:
-      <<: *lely-demo-common-env
+      <<: *github_events_consumer-common-env
     command: pytest -v
     depends_on:
       - mongo
@@ -49,13 +49,13 @@ services:
       - test
 
   api_prod:
-    container_name: lely-demo_api_prod
+    container_name: github_events_consumer_api_prod
     build:
       context: .
       dockerfile: api/Dockerfile
-    image: lely-demo_api_img
+    image: github_events_consumer_api_img
     environment:
-      <<: *lely-demo-common-env
+      <<: *github_events_consumer-common-env
     command: uvicorn main:app --host 0.0.0.0 --reload --log-level error
     depends_on:
       - mongo
@@ -65,16 +65,16 @@ services:
       - prod
 
   celery_test:
-    container_name: lely-demo_celery_test
+    container_name: github_events_consumer_celery_test
     build:
       context: .
       dockerfile: celery_app/Dockerfile
-    image: lely-demo_celery_img
+    image: github_events_consumer_celery_img
     volumes:
       - ./logs/celery_app:/opt/celery_app/logs
       - "${VOLUME_MOUNT}"
     environment:
-      <<: *lely-demo-celery-env
+      <<: *github_events_consumer-celery-env
     depends_on:
       - rabbitmq
       - mongo
@@ -83,16 +83,16 @@ services:
       - test
 
   celery_prod:
-    container_name: lely-demo_celery_prod
+    container_name: github_events_consumer_celery_prod
     build:
       context: .
       dockerfile: celery_app/Dockerfile
-    image: lely-demo_celery_img
+    image: github_events_consumer_celery_img
     volumes:
       - ./logs/celery_app:/opt/celery_app/logs
       - "${VOLUME_MOUNT}"
     environment:
-      <<: *lely-demo-celery-env
+      <<: *github_events_consumer-celery-env
     depends_on:
       - rabbitmq
       - mongo
@@ -102,7 +102,7 @@ services:
       - monitoring
 
   rabbitmq:
-    container_name: lely-demo_rabbitmq
+    container_name: github_events_consumer_rabbitmq
     image: rabbitmq:3.8-management
     restart: on-failure
     ports:
@@ -110,11 +110,11 @@ services:
       - "15672:15672"
 
   flower:
-    container_name: lely-demo_flower
+    container_name: github_events_consumer_flower
     image: mher/flower:latest
     command: celery --broker=${CELERY_BROKER_URL} flower
     environment:
-      # <<: *lely-demo-celery-env
+      # <<: *github_events_consumer-celery-env
       CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
       CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
     ports:
