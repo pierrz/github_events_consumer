@@ -11,7 +11,7 @@ from worker import celery, logger
 
 
 @celery.task(name="pyspark_task")
-def run_pyspark(page_range: int) -> List[int, int]:
+def run_pyspark(page_range: int) -> List[int]:
     """
     Starts the whole module
     *args is bein used to handle the 'None' returned by harvester_task (necessary for the scheduled chain)

@@ -10,7 +10,7 @@ from worker import celery, logger
 
 
 @celery.task(name="cleaning_task")
-def clean_local_files(args: List[int, int], wait_minutes: int):
+def clean_local_files(args: List[int], wait_minutes: int):
     """
     Task deleting all the files whose data was already loaded in Mongo
     :return: does its thing
@@ -25,4 +25,4 @@ def clean_local_files(args: List[int, int], wait_minutes: int):
 
     else:
         rest = (threshold - file_count) / page_range
-        logger.info(f"=> {rest} minutes remaining before next cleaning operation.")
+        logger.info(f"=> {int(rest)} minutes remaining before next cleaning operation.")
