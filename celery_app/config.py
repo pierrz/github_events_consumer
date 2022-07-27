@@ -39,19 +39,19 @@ class CeleryConfig(BaseSettings):
     beat_schedule = {
         # TODO: implement that task separately, only in celery_test
         # 'init-test-task': {'task': 'dummy_task', 'schedule': crontab(minute='*'), 'args': [3]},
-        'chain': {
-            'task': 'harvester_task',
-            'schedule': crontab(minute='*'),
-            'options': {
+        "chain": {
+            "task": "harvester_task",
+            "schedule": crontab(minute="*"),
+            "options": {
                 # **data_pipeline_queue,
                 **data_pipeline_queue,
-                'link': signature('pyspark_task', options=data_pipeline_queue)
+                "link": signature("pyspark_task", options=data_pipeline_queue)
                                   # options=data_pipeline_queue)}
             #                       {**data_pipeline_queue,
-            #                                'link': signature('cleaning_task',
+            #                                "link": signature("cleaning_task",
             #                                                  options=data_pipeline_queue)})
             }
-        },
+        }
 
         # 'chain': {
         #     'task': 'harvester_task',
@@ -62,7 +62,7 @@ class CeleryConfig(BaseSettings):
         #     }
         # }
 
-        "cleaning-task": {"task": "cleaning_task", "schedule": crontab(minute="*/2"), "options": data_pipeline_queue}
+        # "cleaning-task": {"task": "cleaning_task", "schedule": crontab(minute="*/2"), "options": data_pipeline_queue}
     }
 
 
