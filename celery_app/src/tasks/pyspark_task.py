@@ -12,15 +12,19 @@ from worker import celery, logger
 
 
 @celery.task(name="pyspark_task", bind=True)
-def run_pyspark(self):
+def run_pyspark(self, *args):
+    """
+    Starts the whole module
+    *args is bein used to handle the 'None' returned by harvester_task (necessary for the scheduled chain)
+    """
 
     if not pyspark_config.PROCESSED_DIR.exists():
         os.mkdir(pyspark_config.PROCESSED_DIR)
 
-    current_id = self.request.id.__str__()
-    row_data = {"task_id": current_id, "created_at": datetime.now(timezone.utc).isoformat()}
-    db = init_db_connection()
-    db[pyspark_config.TASKID_COLLECTION].insert_one(row_data)  # storing the current task uuid in Mongo
+    # current_id = self.request.id.__str__()
+    # row_data = {"task_id": current_id, "created_at": datetime.now(timezone.utc).isoformat()}
+    # db = init_db_connection()
+    # db[pyspark_config.TASKID_COLLECTION].insert_one(row_data)  # storing the current task uuid in Mongo
 
     logger.info("Initiating data loading task to Mongo ...")
     SparkJobFromJson()

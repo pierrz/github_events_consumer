@@ -42,9 +42,9 @@ This command will spin up the Celery container and:
 
   - download paginated data and save them as files locally
   - read these files and load Mongo with relevant data
+  - delete all local files once their data is successfully in Mongo 
 
 At the moment, the frequency of this sequence is set to every minute.
-And once a day at 03:00, the local files are being deleted.
 
 <br>
 

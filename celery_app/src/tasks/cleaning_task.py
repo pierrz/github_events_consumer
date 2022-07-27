@@ -26,7 +26,7 @@ def check_last_task_status(db):
 
 
 @celery.task(name="cleaning_task")
-def cleaning_task():
+def clean_local_files(*args):
     """
     Task deleting all the files whose data was already loaded in Mongo
     :return: does its thing
