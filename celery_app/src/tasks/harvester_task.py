@@ -5,6 +5,7 @@ Harvests paginated data from the GitHub Events API
 import asyncio
 import os
 import time
+from typing import Union
 
 from config import harvester_config
 from src.harvester.asyncio_operations import download_aio, write_aio
@@ -13,7 +14,7 @@ from worker import celery, logger
 
 
 @celery.task(name="harvester_task")
-def run_harvester():
+def run_harvester() -> Union[int, None]:
     """
     Starts the whole module
     """
