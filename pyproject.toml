@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "github_events_consumer"
-version = "0.1.0"
+version = "0.2.0"
 description = "dev setup"
 authors = ["Pierre-Edouard Barrault"]
 

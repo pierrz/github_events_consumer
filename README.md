@@ -1,7 +1,7 @@
-# GitHub Events API consumer 
+# GitHub Events API consumer
 
 This repository is a tool to quickly get data
-from [GitHub Events API](https://api.github.com/events) into a Mongo database,
+from [GitHub Events API](https://api.github.com/events) and stream it into a Mongo database,
 and have it exposed/analysed via several dedicated APIs.
 
 It is a Docker setup with 2 main containers based on Celery (including Beat), Spark, asyncio, FastAPI and Mongo.
@@ -16,9 +16,10 @@ The repository itself is based on the ['biggie' project](https://github.com/pier
 
 #### Environment
 You have to create the `.env` environment file.
+Eventually tweak the schedule parameter for the cleaning task (see **"Data streaming"** section below.).
 
 **NB**:
-- For all these required files, you'll find the `.env.example` file ready to adapt.
+- For all these required files, you'll find the `<file>.example` ready to adapt.
 
 <br>
 
@@ -42,9 +43,13 @@ This command will spin up the Celery container and:
 
   - download paginated data and save them as files locally
   - read these files and load Mongo with relevant data
-  - delete all local files once their data is successfully in Mongo 
+  - delete all local files once their data is successfully in Mongo
 
-At the moment, the frequency of this sequence is set to every minute.
+These tasks are **scheduled every minute** with a crontab setting,
+and a custom parameter is implemented to separately schedule the cleaning step
+while keeping it in sync with the rest of the chain.
+
+See `kwargs={"wait_minutes": 30}` in the `beat_schedule` parameter in [**`celery_app/config.py`**](celery_app/config.py).
 
 <br>
 

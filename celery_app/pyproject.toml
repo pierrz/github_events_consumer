@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "github_events_consumer"
-version = "0.1.0"
-description = "Celery container embedded with PySpark and Harvester applications (prod and test)"
+version = "0.2.0"
+description = "Celery/Beat container embedded with PySpark and Harvester applications (prod and test)"
 authors = ["Pierre-Edouard Barrault"]
 
 [tool.poetry.dependencies]

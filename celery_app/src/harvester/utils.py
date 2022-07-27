@@ -23,7 +23,6 @@ def get_events_urls():
 
     for page in list(range(1, last_page + 1)):
         url = f"{base_url}&page={page}"
-        # print(url)
         urls.append(url)
 
     return urls

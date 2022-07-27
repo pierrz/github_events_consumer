@@ -5,6 +5,7 @@ Harvests paginated data from the GitHub Events API
 import asyncio
 import os
 import time
+from typing import Union
 
 from config import harvester_config
 from src.harvester.asyncio_operations import download_aio, write_aio
@@ -13,7 +14,7 @@ from worker import celery, logger
 
 
 @celery.task(name="harvester_task")
-def run_harvester():
+def run_harvester() -> Union[int, None]:
     """
     Starts the whole module
     """
@@ -30,6 +31,9 @@ def run_harvester():
         json_data = asyncio.run(download_aio(urls))
         asyncio.run(write_aio(json_data, harvester_config.DATA_DIR))
         logger.info(f"Downloads took {time.time() - start_time} seconds")
+
+        # send page range as handle to init the cleaning (or not)
+        return len(urls)
 
     except Exception as exception:  # pylint: disable=W0703
         logger.info(exception)

@@ -141,4 +141,3 @@ conf/nginx/app_docker.conf
 conf/nginx/monitor_docker.conf
 data
 dev
-
