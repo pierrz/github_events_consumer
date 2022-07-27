@@ -92,11 +92,11 @@ class DataframeMaker(MongoCollection, ABC):
         Generates the PySpark dataframes from the cleaned/normalised data
         :return: does its thing
         """
-        print("=> Preparing PySpark dataframe")
+        print("=> Preparing PySpark dataframe ...")
         self.spark_df = spark.createDataFrame(data=self.flat_df)
         self.schema = self.spark_df.schema
-        print("... PySpark dataframe prepared with inferred schema:\n")
         # # extended logs (extra info for celery)
+        # print("... PySpark dataframe prepared with inferred schema:\n")
         # self.spark_df.printSchema()
         # self.spark_df.select(*self.check_columns).show()
 

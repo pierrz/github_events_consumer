@@ -70,7 +70,6 @@ class PySparkConfig(HarvesterConfig):
 
     MONGODB_URI: str = os.getenv("MONGODB_URI")
     DB_NAME = os.getenv("DB_NAME")
-    TASKID_COLLECTION = "taskid"
     PROCESSED_DIR = Path(data_dir_root, "processed")
 
 
