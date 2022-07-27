@@ -14,10 +14,6 @@ on:
   # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
-  RELEASE: 0.3.5
-
 jobs:
 
   test:
@@ -60,12 +56,10 @@ jobs:
       - name: Test Celery image
         run: >
           docker-compose
-          -f docker-compose.main.yml
-          -f docker-compose.mongo.yml
+          -f docker-compose.yml
           up celery_test mongo
       - name: Test API image
         run: >
           docker-compose
-          -f docker-compose.main.yml
-          -f docker-compose.mongo.yml
+          -f docker-compose.yml
           up api_test mongo
