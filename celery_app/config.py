@@ -7,6 +7,8 @@ from pathlib import Path
 
 from celery.schedules import crontab
 from pydantic import BaseSettings
+from celery import signature
+
 
 data_dir_root = Path(os.sep, "opt", "data")
 
@@ -35,17 +37,17 @@ class CeleryConfig(BaseSettings):
     beat_schedule = {
         # TODO: implement that task separately, only in celery_test
         # 'init-test-task': {'task': 'dummy_task', 'schedule': crontab(minute='*'), 'args': [3]},
-        "harvester-task": {"task": "harvester_task", "schedule": crontab(minute="*"), 'options': {'queue': 'data_pipeline'}},
-        "pyspark-mongo-task": {"task": "pyspark_task", "schedule": crontab(minute="*"), 'options': {'queue': 'data_pipeline'}},
+        # "harvester-task": {"task": "harvester_task", "schedule": crontab(minute="*"), 'options': {'queue': 'data_pipeline'}},
+        # "pyspark-mongo-task": {"task": "pyspark_task", "schedule": crontab(minute="*"), 'options': {'queue': 'data_pipeline'}},
         # TODO: implement the data pipeline tasks as a chain (not working atm)
-        # 'chain': {
-        #     'task': 'harvester_task',
-        #     'schedule': crontab(minute='*'),
-        #     'options': {
-        #         'queue': 'data_pipeline',
-        #         'link': signature('pyspark_task', options={'queue': 'data_pipeline'})
-        #     }
-        # }
+        'chain': {
+            'task': 'harvester_task',
+            'schedule': crontab(minute='*'),
+            'options': {
+                'queue': 'data_pipeline',
+                'link': signature('pyspark_task', options={'queue': 'data_pipeline'})
+            }
+        }
     }
 
 

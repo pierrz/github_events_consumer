@@ -10,8 +10,12 @@ from src.pyspark.jobs import SparkJobFromJson
 from worker import celery, logger
 
 
-@celery.task(name="pyspark_task")
-def run_pyspark():
+@celery.task(name="pyspark_task", bind=False)
+def run_pyspark(*args):
+    """
+    Starts the whole module
+    *args is bein used to handle the 'None' returned by harvester_task (necessary for the scheduled chain)
+    """
 
     if not pyspark_config.PROCESSED_DIR.exists():
         os.mkdir(pyspark_config.PROCESSED_DIR)

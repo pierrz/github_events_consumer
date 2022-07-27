@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lely-demo_celery"
+name = "github_events_consumer"
 version = "0.1.0"
 description = "Celery container embedded with PySpark and Harvester applications (prod and test)"
 authors = ["Pierre-Edouard Barrault"]
