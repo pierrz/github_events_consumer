@@ -59,11 +59,7 @@ jobs:
 #          mongo:5.0.8
       - name: Test Celery image
         run: >
-          docker-compose
-          -f docker-compose.yml
-          up celery_test mongo
+          docker-compose up celery_test mongo
       - name: Test API image
         run: >
-          docker-compose
-          -f docker-compose.yml
-          up api_test mongo
+          docker-compose up api_test mongo
