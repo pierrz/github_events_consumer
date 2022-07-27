@@ -47,7 +47,7 @@ class CeleryConfig(BaseSettings):
                     "pyspark_task",
                     options={
                         **data_pipeline_queue,
-                        "link": signature("cleaning_task", options=data_pipeline_queue),
+                        "link": signature("cleaning_task", kwargs={"wait_minutes": 2}, options=data_pipeline_queue),
                     },
                 ),
             },

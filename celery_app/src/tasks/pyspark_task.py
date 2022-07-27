@@ -24,7 +24,8 @@ def run_pyspark(page_range):
     logger.info("=> Data loaded successfully.")
 
     # init or not the cleaning
-    wait_minutes = 2
-    if len(os.listdir(pyspark_config.PROCESSED_DIR)) >= page_range * wait_minutes:
-        return True
-    return False
+    # wait_minutes = 2
+    # if len(os.listdir(pyspark_config.PROCESSED_DIR)) >= page_range * wait_minutes:
+    #     return True
+    # return False
+    return [len(os.listdir(pyspark_config.PROCESSED_DIR)), page_range]
