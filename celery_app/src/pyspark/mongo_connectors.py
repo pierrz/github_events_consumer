@@ -77,11 +77,14 @@ class DataframeMaker(MongoCollection, ABC):
         flat_df.rename(columns=mapper, inplace=True)
 
         print(" ... dataframe normalised")
+
         columns = flat_df.columns.to_list()
         print(f"with {flat_df.shape[0]} rows and {len(columns)} columns")
-        print(columns)
-        if self.check_columns is not None:
-            print(flat_df[self.check_columns])
+
+        # # extended logs (extra info for celery)
+        # print(columns)
+        # if self.check_columns is not None:
+        #     print(flat_df[self.check_columns])
         self.flat_df = flat_df
 
     def prepare_spark_dataframes(self):
@@ -93,8 +96,9 @@ class DataframeMaker(MongoCollection, ABC):
         self.spark_df = spark.createDataFrame(data=self.flat_df)
         self.schema = self.spark_df.schema
         print("... PySpark dataframe prepared with inferred schema:\n")
-        self.spark_df.printSchema()
-        self.spark_df.select(*self.check_columns).show()
+        # # extended logs (extra info for celery)
+        # self.spark_df.printSchema()
+        # self.spark_df.select(*self.check_columns).show()
 
     def load_mongo(self):
         """

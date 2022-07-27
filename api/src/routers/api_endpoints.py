@@ -68,11 +68,8 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = None)
     ).astype({"#PR": "int32"})
 
     # diagram
-    fig = px.line(
-        plot_df,
-        x="#PR",
-        y="delta (seconds)")
-    fig.update_xaxes(nticks=plot_df.shape[0])   # shows only integers for that axe
+    fig = px.line(plot_df, x="#PR", y="delta (seconds)")
+    fig.update_xaxes(nticks=plot_df.shape[0])  # shows only integers for that axe
 
     title_text = f"{repo_name} PR deltas timeline"
     if size is not None and size < 3:

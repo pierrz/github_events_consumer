@@ -31,5 +31,8 @@ def run_harvester():
         asyncio.run(write_aio(json_data, harvester_config.DATA_DIR))
         logger.info(f"Downloads took {time.time() - start_time} seconds")
 
+        # send page range as handle to init the cleaning (or not)
+        return len(urls)
+
     except Exception as exception:  # pylint: disable=W0703
         logger.info(exception)

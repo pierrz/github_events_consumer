@@ -5,10 +5,9 @@ Configuration module
 import os
 from pathlib import Path
 
+from celery import signature
 from celery.schedules import crontab
 from pydantic import BaseSettings
-from celery import signature
-
 
 data_dir_root = Path(os.sep, "opt", "data")
 data_pipeline_queue = {"queue": "data_pipeline"}
@@ -25,7 +24,7 @@ class CeleryConfig(BaseSettings):
         "src.tasks.test_task",
         "src.tasks.harvester_task",
         "src.tasks.pyspark_task",
-        "src.tasks.cleaning_task"
+        "src.tasks.cleaning_task",
     ]
     enable_utc = True
     timezone = "Europe/Amsterdam"
@@ -43,26 +42,16 @@ class CeleryConfig(BaseSettings):
             "task": "harvester_task",
             "schedule": crontab(minute="*"),
             "options": {
-                # **data_pipeline_queue,
                 **data_pipeline_queue,
-                "link": signature("pyspark_task", options=data_pipeline_queue)
-                                  # options=data_pipeline_queue)}
-            #                       {**data_pipeline_queue,
-            #                                "link": signature("cleaning_task",
-            #                                                  options=data_pipeline_queue)})
-            }
+                "link": signature(
+                    "pyspark_task",
+                    options={
+                        **data_pipeline_queue,
+                        "link": signature("cleaning_task", options=data_pipeline_queue),
+                    },
+                ),
+            },
         }
-
-        # 'chain': {
-        #     'task': 'harvester_task',
-        #     'schedule': crontab(minute='*'),
-        #     'options': {
-        #         'queue': 'data_pipeline',
-        #         'link': signature('pyspark_task', options={'queue': 'data_pipeline'})
-        #     }
-        # }
-
-        # "cleaning-task": {"task": "cleaning_task", "schedule": crontab(minute="*/2"), "options": data_pipeline_queue}
     }
 
 

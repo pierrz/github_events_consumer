@@ -81,6 +81,7 @@ services:
     command: python3.9 -m pytest -v
     profiles:
       - test
+    restart: on-failure
 
   celery_prod:
     container_name: github_events_consumer_celery_prod
@@ -100,6 +101,7 @@ services:
     profiles:
       - prod
       - monitoring
+    restart: on-failure
 
   rabbitmq:
     container_name: github_events_consumer_rabbitmq
