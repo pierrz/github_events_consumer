@@ -65,7 +65,7 @@ docker-compose up api_prod
 <br>
 
 #### Monitoring
-Spin up the Mongo-Express container to access the Mongo UI
+Spin up the Mongo-Express container to access the Mongo-Express and Flower UI
 ```
 docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
 ```
