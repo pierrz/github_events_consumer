@@ -1,23 +1,19 @@
 version: "3.9"
 
-volumes:
-  github_events_consumer_db:
-    name: github_events_consumer_db
-
 services:
-
-  mongo:
-    image: mongo:5.0.8
-    container_name: github_events_consumer_mongo
-    restart: always
+  flower:
+    container_name: github_events_consumer_flower
+    image: mher/flower:latest
+    command: celery --broker=${CELERY_BROKER_URL} flower
     environment:
-      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
-      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
-    volumes:
-      - github_events_consumer_db:/data/db
-    # TODO: implement authentication for api container calls
-    # volumes:
-    #  - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+      CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
+      CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+    ports:
+      - "49555:5555"
+    depends_on:
+      - celery_prod
+    profiles:
+      - monitoring
 
   mongo-express:
     image: mongo-express:latest   # 0.54 needs authentication

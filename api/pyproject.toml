@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "github_events_consumer"
-version = "0.2.0"
+version = "0.3.0"
 description = "FastAPI containers for stats and dashboards (prod and test)"
 authors = ["Pierre-Edouard Barrault"]
 

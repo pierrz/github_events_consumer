@@ -5,15 +5,20 @@ x-github_events_consumer-common:
     &github_events_consumer-common-env
     MONGODB_URI: "${MONGODB_URI}"
     DB_NAME: "${DB_NAME}"
-  volumes:
-    - "${VOLUME_MOUNT}"
 
 x-github_events_consumer-celery:
+  &github_events_consumer-celery
   environment:
-    &github_events_consumer-celery-env
     <<: *github_events_consumer-common-env
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+  volumes:
+    - ./logs/celery_app:/opt/celery_app/logs
+    - "${VOLUME_MOUNT}"
+
+volumes:
+  github_events_consumer_db:
+    name: github_events_consumer_db
 
 services:
 
@@ -33,6 +38,19 @@ services:
       - api_prod
     profiles:
       - live_prod
+
+  mongo:
+    image: mongo:5.0.8
+    container_name: github_events_consumer_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+    volumes:
+      - github_events_consumer_db:/data/db
+    # TODO: implement authentication for api container calls
+    # volumes:
+    #  - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
 
   api_test:
     container_name: github_events_consumer_api_test
@@ -67,11 +85,7 @@ services:
       context: .
       dockerfile: celery_app/Dockerfile
     image: github_events_consumer_celery_img
-    volumes:
-      - ./logs/celery_app:/opt/celery_app/logs
-      - "${VOLUME_MOUNT}"
-    environment:
-      <<: *github_events_consumer-celery-env
+    <<: *github_events_consumer-celery
     depends_on:
       - rabbitmq
       - mongo
@@ -83,11 +97,7 @@ services:
   celery_prod:
     container_name: github_events_consumer_celery_prod
     image: github_events_consumer_celery_img
-    volumes:
-      - ./logs/celery_app:/opt/celery_app/logs
-      - "${VOLUME_MOUNT}"
-    environment:
-      <<: *github_events_consumer-celery-env
+    <<: *github_events_consumer-celery
     depends_on:
       - rabbitmq
       - mongo
@@ -104,18 +114,3 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-
-  flower:
-    container_name: github_events_consumer_flower
-    image: mher/flower:latest
-    command: celery --broker=${CELERY_BROKER_URL} flower
-    environment:
-      # <<: *github_events_consumer-celery-env
-      CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
-      CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
-    ports:
-      - "49555:5555"
-    depends_on:
-      - celery_prod
-    profiles:
-      - monitoring
