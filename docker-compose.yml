@@ -5,8 +5,6 @@ x-github_events_consumer-common:
     &github_events_consumer-common-env
     MONGODB_URI: "${MONGODB_URI}"
     DB_NAME: "${DB_NAME}"
-  volumes:
-    - "${VOLUME_MOUNT}"
 
 x-github_events_consumer-celery:
   environment:
@@ -121,18 +119,3 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-
-#  flower:
-#    container_name: github_events_consumer_flower
-#    image: mher/flower:latest
-#    command: celery --broker=${CELERY_BROKER_URL} flower
-#    environment:
-#      # <<: *github_events_consumer-celery-env
-#      CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
-#      CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
-#    ports:
-#      - "49555:5555"
-#    depends_on:
-#      - celery_prod
-#    profiles:
-#      - monitoring
