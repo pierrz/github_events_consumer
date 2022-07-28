@@ -7,11 +7,14 @@ x-github_events_consumer-common:
     DB_NAME: "${DB_NAME}"
 
 x-github_events_consumer-celery:
+  &github_events_consumer-celery
   environment:
-    &github_events_consumer-celery-env
     <<: *github_events_consumer-common-env
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+  volumes:
+    - ./logs/celery_app:/opt/celery_app/logs
+    - "${VOLUME_MOUNT}"
 
 volumes:
   github_events_consumer_db:
@@ -82,11 +85,7 @@ services:
       context: .
       dockerfile: celery_app/Dockerfile
     image: github_events_consumer_celery_img
-    volumes:
-      - ./logs/celery_app:/opt/celery_app/logs
-      - "${VOLUME_MOUNT}"
-    environment:
-      <<: *github_events_consumer-celery-env
+    <<: *github_events_consumer-celery
     depends_on:
       - rabbitmq
       - mongo
@@ -98,11 +97,7 @@ services:
   celery_prod:
     container_name: github_events_consumer_celery_prod
     image: github_events_consumer_celery_img
-    volumes:
-      - ./logs/celery_app:/opt/celery_app/logs
-      - "${VOLUME_MOUNT}"
-    environment:
-      <<: *github_events_consumer-celery-env
+    <<: *github_events_consumer-celery
     depends_on:
       - rabbitmq
       - mongo

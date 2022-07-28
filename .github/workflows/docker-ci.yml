@@ -49,17 +49,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Create network & Mongo container
-#        run: >
-#          docker network create -d bridge test_network
-#          && docker run -d --name github_events_consumer_mongo
-#          --env MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
-#          --env MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
-#          --network=test_network
-#          mongo:5.0.8
       - name: Test Celery image
-        run: >
-          docker-compose up celery_test
+        run: docker-compose up celery_test
+
       - name: Test API image
-        run: >
-          docker-compose up api_test
+        run: docker-compose up api_test
