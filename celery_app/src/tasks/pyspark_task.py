@@ -24,4 +24,7 @@ def run_pyspark(page_range: int) -> List[int]:
     SparkJobFromJson()
     logger.info("=> Data loaded successfully.")
 
-    return [len(os.listdir(pyspark_config.PROCESSED_DIR)), page_range]
+    file_count = len(os.listdir(pyspark_config.PROCESSED_DIR))
+    if file_count is None:
+        return [0, page_range]
+    return [file_count, page_range]
