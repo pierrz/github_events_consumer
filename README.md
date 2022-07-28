@@ -30,9 +30,9 @@ as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 
 The `docker-compose.main` file is structured to make the `test` containers build the image
 used by the `prod` image. Hence the need to run one of the following commands on the very first run:
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_test celery_test
+docker-compose up api_test celery_test
 OR
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile test up
+docker-compose --profile test up
 ```
 
 <br>
@@ -40,7 +40,7 @@ docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile 
 ### Run
 #### Data streaming from the GitHub API into Mongo
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up celery_prod
+docker-compose up celery_prod
 ```
 This command will spin up the Celery container and:
 
@@ -59,7 +59,7 @@ See `kwargs={"wait_minutes": 30}` in the `beat_schedule` parameter in [**`celery
 #### API container
 Just to have the FastAPI container up
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_prod
+docker-compose up api_prod
 ```
 
 <br>
@@ -67,14 +67,7 @@ docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml up api_pro
 #### Monitoring
 Spin up the Mongo-Express container to access the Mongo UI
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile monitoring up
-```
-
-<br>
-
-#### The whole shebang (excluding tests containers)
-```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile monitoring --profile prod up
+docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
 ```
 
 <br>
@@ -99,7 +92,7 @@ The `nginx` configuration files are:
 
 Finally run the `docker-compose` command with the `live_prod` profile:
 ```
-docker-compose -f docker-compose.main.yml -f docker-compose.mongo.yml --profile live_prod up
+docker-compose --profile live_prod up
 ```
 
 <br>
