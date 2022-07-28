@@ -101,16 +101,13 @@ docker-compose --profile live_prod up
 
 [API docs](http://localhost:8000/docs)
 
-API - PR average delta for a given repository
-http://localhost:8000/api/pr_average_delta?repo_name=<repository-name>
+API
+- [Count per type with a given time offset in minutes](http://localhost:8000/api/count_per_type?offset=90)
+- [PR average delta for a given repository](http://localhost:8000/api/pr_average_delta?repo_name=<repository-name>)
+- [Timeline of PR deltas for a given repository (dataviz)](http://localhost:8000/api/pr_deltas_timeline?repo_name=<repository-name>)
 
-API - Count per type with a given time offset in minutes
-http://localhost:8000/api/count_per_type?offset=90
-
-API - Timeline of PR deltas for a given repository (dataviz)
-http://localhost:8000/api/pr_deltas_timeline?repo_name=<repository-name>
-
-NB: a repository name includes the actor name such as `pierrz/biggie`
+NB: For the last 2 endpoints, the repository name parameter takes the full repository name
+including the actor name such as `pierrz/biggie`.
 
 Monitoring
 - [Mongo-Express](http://localhost:8081)
