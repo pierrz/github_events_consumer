@@ -18,8 +18,11 @@ The repository itself is based on the ['biggie' project](https://github.com/pier
 You have to create the `.env` environment file.
 Eventually tweak the schedule parameter for the cleaning task (see **"Data streaming"** section below.).
 
+If you plan to use the same Github-actions CI file, you need to create the same secrets
+as in the `jobs > env` section in `.github/workflows/docker-ci.yml` (see **line 31**).
+
 **NB**:
-- For all these required files, you'll find the `<file>.example` ready to adapt.
+- For all files embedded with secrets, you'll find the `<file>.example` ready to adapt.
 
 <br>
 
