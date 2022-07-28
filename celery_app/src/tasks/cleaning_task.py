@@ -15,13 +15,15 @@ def clean_local_files(args: List[int], wait_minutes: int):
     Task deleting all the files whose data was already loaded in Mongo
     :return: does its thing
     """
+
     file_count, page_range = args
     threshold = page_range * wait_minutes
+
     if file_count >= threshold:
 
         logger.info("Cleaning task initialised ...")
         shutil.rmtree(pyspark_config.PROCESSED_DIR)
-        logger.info("All processed data files were deleted.")
+        logger.info(f"{file_count} files were deleted.")
 
     else:
         rest = (threshold - file_count) / page_range

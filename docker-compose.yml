@@ -67,9 +67,6 @@ services:
 
   api_prod:
     container_name: github_events_consumer_api_prod
-    build:
-      context: .
-      dockerfile: api/Dockerfile
     image: github_events_consumer_api_img
     environment:
       <<: *github_events_consumer-common-env
@@ -102,9 +99,6 @@ services:
 
   celery_prod:
     container_name: github_events_consumer_celery_prod
-    build:
-      context: .
-      dockerfile: celery_app/Dockerfile
     image: github_events_consumer_celery_img
     volumes:
       - ./logs/celery_app:/opt/celery_app/logs
