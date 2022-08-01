@@ -10,67 +10,85 @@ from typing import Dict, Iterable, List, Tuple
 
 import aiohttp
 import pandas as pd
+from config import harvester_config
 
 
-def download(func):
+async def get_session(url):
+
+    print(f"Start downloading {url}")
+    async with aiohttp.ClientSession() as session:
+        resp = await session.get(url)
+        data = await resp.json()
+    print(f"Done downloading {url}")
+    return data
+
+
+def download_aio(func):
     """
-    Decorator function meant to download URLs
-    :param func: the function used along this decorator
-    :return: the downloaded data
+    Async loop to download a list of urls
+    :param func: the function actually cleaning the parsed data
+    :return: the retrieved data as an array
     """
 
-    async def inner(url):
-        print(f"Start downloading {url}")
-        async with aiohttp.ClientSession() as session:
-            resp = await session.get(url)
-            data = await resp.json()
-        print(f"Done downloading {url}")
+    async def fetch(url):
+        data = await get_session(url)
         return await func(data)
+
+    async def inner(urls: Iterable[str], **kwargs) -> List[Tuple[str, bytes]]:
+        return await asyncio.gather(*[fetch(url) for url in urls])
 
     return inner
 
 
-@download
-async def download_test(data):
+@download_aio
+async def download_test(data) -> Iterable[Dict]:
     """
     For testing purpose (passthrough)
     :param data: the received data
     :return: the received data
     """
+
     return data
 
 
-@download
-async def download_github_events(data):
+@download_aio
+async def download_github_events(data, filtered: bool = True, output: str = "json") -> Iterable[Dict]:
     """
-    Handles downloads from the Marvel API
+    Handles downloads from the GitHub Events API
     :param data: the received data
+    :param filtered: allow for production data cleaning (enabled by default)
+    :param output: how the data is exported (json array per default)
     :return: the filtered data
     """
 
-    df = pd.DataFrame(data)
-    mask = df["type"].isin(["WatchEvent", "PullRequestEvent", "IssuesEvent"])
-    required_data = df[mask].to_dict("records")
-    return required_data
+    raw_df = pd.DataFrame(data)
+    if filtered:
+        mask = raw_df["type"].isin(harvester_config.EVENTS)
+        df = raw_df[mask].to_dict("records")
+    else:
+        df = raw_df.to_dict("records")
+
+    if output == "df":
+        return df
+    return df.to_dict("records")
 
 
-# TODO: create a decorator for the 2 following functions (same loop but different download 'def')
-async def download_aio(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
-    """
-    Async loop to download a list of urls
-    :param urls: the list of urls to download
-    :return: the retrieved data as an array
-    """
-    return await asyncio.gather(*[download_github_events(url) for url in urls])
-
-
-async def download_aio_test(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
-    """
-    Async loop to download a list of urls
-    :param urls: the list of urls to download
-    :return: the retrieved data as an array
-    """
-    return await asyncio.gather(*[download_test(url) for url in urls])
+# async def download_aio(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
+#     """
+#     Async loop to download a list of urls
+#     :param urls: the list of urls to download
+#     :return: the retrieved data as an array
+#     """
+#     return await asyncio.gather(*[download_github_events(url) for url in urls])
+#
+#
+# async def download_aio_test(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
+#     """
+#     Async loop to download a list of urls
+#     :param urls: the list of urls to download
+#     :return: the retrieved data as an array
+#     """
+#     return await asyncio.gather(*[download_test(url) for url in urls])
 
 
 async def write(

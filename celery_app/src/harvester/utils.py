@@ -5,11 +5,12 @@ Module containing core functions
 import re
 
 import requests
+from config import harvester_config
 
 
 def get_events_urls():
 
-    base_url = "https://api.github.com/events?per_page=100"
+    base_url = f"https://api.github.com/events?per_page={harvester_config.PER_PAGE}"
     response = requests.get(base_url)
     links = response.headers["Link"].split(",")
 

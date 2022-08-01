@@ -8,7 +8,7 @@ import time
 from typing import Union
 
 from config import harvester_config
-from src.harvester.asyncio_operations import download_aio, write_aio
+from src.harvester.asyncio_operations import download_github_events, write_aio
 from src.harvester.utils import get_events_urls
 from worker import celery, logger
 
@@ -28,7 +28,7 @@ def run_harvester() -> Union[int, None]:
 
         logger.info(f"Retrieved {len(urls)} event pages")
         start_time = time.time()
-        json_data = asyncio.run(download_aio(urls))
+        json_data = asyncio.run(download_github_events(urls))
         asyncio.run(write_aio(json_data, harvester_config.DATA_DIR))
         logger.info(f"Downloads took {time.time() - start_time} seconds")
 

@@ -66,6 +66,8 @@ class HarvesterConfig(BaseSettings):
     """
 
     DATA_DIR = Path(data_dir_root, "events")
+    EVENTS = ["IssuesEvent", "PullRequestEvent", "WatchEvent"]
+    PER_PAGE = 100
 
 
 class PySparkConfig(HarvesterConfig):

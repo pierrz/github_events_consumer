@@ -2,27 +2,29 @@
 Harvester tests
 """
 
+import asyncio
 import os
 import shutil
 from pathlib import Path
 
 import pytest
 from config import harvester_config
-from src.harvester.asyncio_operations import (download_aio_test, download_test,
+from src.harvester.asyncio_operations import (download_github_events,
+                                              download_test, get_session,
                                               write, write_aio)
+from src.harvester.utils import get_events_urls
 from src.utils.json_utils import load_json  # pylint: disable=E0611
 
 
 @pytest.mark.asyncio
-async def test_download_sample(dog_sample_url):
+async def test_download_sample(dog_sample_urls):
     """
     Tests the download function onto a basic url
     :return: does its thing
     """
 
-    response = await download_test(dog_sample_url)
-
-    assert response["message"].startswith("https://images.dog.ceo/breeds")
+    response = await get_session(dog_sample_urls["test"])
+    assert response["message"].startswith(dog_sample_urls["result-url-prefix"])
     assert response["status"] == "success"
 
 
@@ -60,7 +62,7 @@ async def test_asyncio_write_loop(json_array_dict):
 
 
 @pytest.mark.asyncio
-async def test_asyncio_download_loop(dog_sample_url):
+async def test_asyncio_download_loop(dog_sample_urls):
     """
     Tests the asyncio loop download function
     :return: does its thing
@@ -68,7 +70,34 @@ async def test_asyncio_download_loop(dog_sample_url):
     """
 
     size = 3
-    test_urls = [dog_sample_url] * size
-    results = await download_aio_test(test_urls)
+    test_urls = [dog_sample_urls["test"]] * size
+    results = await download_test(test_urls)
 
     assert len(results) == size
+
+
+@pytest.mark.asyncio
+async def test_asyncio_download_github_events():
+    """
+    Tests the asyncio loop download function
+    :return: does its thing
+    :return:
+    """
+
+    urls = get_events_urls()
+
+    # json_data_raw = await asyncio.run(download_github_events(urls, filtered=False))
+    json_data_raw = asyncio.run(download_github_events(urls))
+    assert len(json_data_raw) == urls * harvester_config.PER_PAGE
+
+    # json_data_filtered = asyncio.run(download_github_events(urls, output="df"))
+    # sums = json_data_filtered.groupby(["type"]).sum()
+    # is_valid = sums[sums["type"] > 0].unique()
+    #
+    # print(sums)
+    # print(is_valid)
+    #
+    # assert sorted(sums.index.to_list()) == harvester_config.EVENTS
+    # assert is_valid
+
+    shutil.rmtree(harvester_config.DATA_DIR)
