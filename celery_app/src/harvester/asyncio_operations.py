@@ -30,12 +30,12 @@ def download_aio(func):
     :return: the retrieved data as an array
     """
 
-    async def fetch(url):
+    async def fetch(url, **kwargs):
         data = await get_session(url)
-        return await func(data)
+        return await func(data, **kwargs)
 
     async def inner(urls: Iterable[str], **kwargs) -> List[Tuple[str, bytes]]:
-        return await asyncio.gather(*[fetch(url) for url in urls])
+        return await asyncio.gather(*[fetch(url, **kwargs) for url in urls])
 
     return inner
 
