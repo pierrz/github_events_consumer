@@ -123,5 +123,3 @@ async def test_asyncio_download_github_events_filtered_df():
     # should always have at least 1 match from the required events
     is_valid = (grouped_df["count"] > 0).unique()[0]
     assert is_valid
-
-    # shutil.rmtree(harvester_config.DATA_DIR)
