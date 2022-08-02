@@ -8,36 +8,30 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
-import aiohttp
 import pandas as pd
 from config import harvester_config
+from src.harvester.utils import get_session_data
 
 
-async def get_session(url):
-
-    print(f"Start downloading {url}")
-    async with aiohttp.ClientSession() as session:
-        resp = await session.get(url)
-        data = await resp.json()
-    print(f"Done downloading {url}")
-    return data
-
-
-def download_aio(func):
+async def download_aio(func):
     """
     Async loop to download a list of urls
     :param func: the function actually cleaning the parsed data
     :return: the retrieved data as an array
     """
 
-    async def fetch(url, **kwargs):
-        data = await get_session(url)
-        return await func(data, **kwargs)
+    # async def fetch(url, **kwargs):
+    #     data = await get_session(url)
+    #     return await func(data, **kwargs)
 
-    async def inner(urls: Iterable[str], **kwargs) -> List[Tuple[str, bytes]]:
-        return await asyncio.gather(*[fetch(url, **kwargs) for url in urls])
+    async def fetch(url):
+        data = await get_session_data(url)
+        return await func(data)
 
-    return inner
+    async def inner(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
+        return await asyncio.gather(*[fetch(url) for url in urls])
+
+    return inner    # yu
 
 
 @download_aio
@@ -52,7 +46,7 @@ async def download_test(data) -> Iterable[Dict]:
 
 
 @download_aio
-async def download_github_events(data, filtered: bool = True, output: str = "json") -> Iterable[Dict]:
+async def download_github_events(data, filtered: bool = True, output: str = None) -> Iterable[Dict]:
     """
     Handles downloads from the GitHub Events API
     :param data: the received data
@@ -62,11 +56,12 @@ async def download_github_events(data, filtered: bool = True, output: str = "jso
     """
 
     raw_df = pd.DataFrame(data)
+
     if filtered:
         mask = raw_df["type"].isin(harvester_config.EVENTS)
-        df = raw_df[mask].to_dict("records")
+        df = raw_df[mask]
     else:
-        df = raw_df.to_dict("records")
+        df = raw_df
 
     if output == "df":
         return df

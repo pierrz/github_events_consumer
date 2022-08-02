@@ -24,7 +24,7 @@ def run_harvester() -> Union[int, None]:
 
     try:
 
-        urls = get_events_urls()
+        urls = await get_events_urls()
 
         logger.info(f"Retrieved {len(urls)} event pages")
         start_time = time.time()

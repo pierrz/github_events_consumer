@@ -10,9 +10,8 @@ from pathlib import Path
 import pytest
 from config import harvester_config
 from src.harvester.asyncio_operations import (download_github_events,
-                                              download_test, get_session,
-                                              write, write_aio)
-from src.harvester.utils import get_events_urls
+                                              download_test, write, write_aio)
+from src.harvester.utils import get_events_urls, get_session_data
 from src.utils.json_utils import load_json  # pylint: disable=E0611
 
 
@@ -23,7 +22,7 @@ async def test_download_sample(dog_sample_urls):
     :return: does its thing
     """
 
-    response = await get_session(dog_sample_urls["test"])
+    response = await get_session_data(dog_sample_urls["test"])
     assert response["message"].startswith(dog_sample_urls["result-url-prefix"])
     assert response["status"] == "success"
 
@@ -84,11 +83,12 @@ async def test_asyncio_download_github_events():
     :return:
     """
 
-    urls = get_events_urls()
+    urls = await get_events_urls()
 
     # json_data_raw = await asyncio.run(download_github_events(urls, filtered=False))
-    json_data_raw = asyncio.run(download_github_events(urls))
-    assert len(json_data_raw) == urls * harvester_config.PER_PAGE
+    # json_data_raw = await asyncio.run(download_github_events(urls))
+    async with await asyncio.run(download_github_events(urls), debug=True) as json_data_raw:
+        assert await len(json_data_raw) == urls * harvester_config.PER_PAGE
 
     # json_data_filtered = asyncio.run(download_github_events(urls, output="df"))
     # sums = json_data_filtered.groupby(["type"]).sum()
