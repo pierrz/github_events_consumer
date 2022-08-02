@@ -11,7 +11,7 @@ import pytest
 def dog_sample_urls():
     return {
         "test": "https://dog.ceo/api/breeds/image/random",
-        "result-url-prefix": "https://images.dog.ceo/breeds"
+        "result-url-prefix": "https://images.dog.ceo/breeds",
     }
 
 

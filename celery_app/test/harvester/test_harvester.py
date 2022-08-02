@@ -21,7 +21,9 @@ async def test_download_sample(dog_sample_urls):
     :return: does its thing
     """
 
-    response = await get_session_data(dog_sample_urls["test"], auth=False, mode="response")
+    response = await get_session_data(
+        dog_sample_urls["test"], auth=False, mode="response"
+    )
     async with response:
         data = await response.json()
         assert response.status == 200
@@ -90,25 +92,10 @@ async def test_asyncio_download_github_events_unfiltered_records():
     unfiltered_json_data = await download_github_events(event_urls, filtered=False)
 
     array = unfiltered_json_data.pop(0)
-    # print(len(unfiltered_json_data))
     for idx, part in enumerate(unfiltered_json_data):
         array += part
-    # array = []
-    # for part in unfiltered_json_data:
-    #     for data in part:
-    #         array.append(data)
 
     assert len(array) == len(event_urls) * harvester_config.PER_PAGE
-
-    # df_list = await download_github_events(urls, output="df")
-    # grouped_df = pd.concat(df_list).groupby(["type"]).sum().rename(columns={"public": "count"})
-    # assert sorted(grouped_df.index.to_list()) == harvester_config.EVENTS
-    #
-    # # should always have at least 1 match from the required events
-    # is_valid = (grouped_df["count"] > 0).unique()[0]
-    # assert is_valid
-    #
-    # shutil.rmtree(harvester_config.DATA_DIR)
 
 
 @pytest.mark.asyncio
@@ -121,7 +108,9 @@ async def test_asyncio_download_github_events_filtered_df():
 
     event_urls = await get_events_urls()
     df_list = await download_github_events(event_urls, output="df")
-    grouped_df = pd.concat(df_list).groupby(["type"]).sum().rename(columns={"public": "count"})
+    grouped_df = (
+        pd.concat(df_list).groupby(["type"]).sum().rename(columns={"public": "count"})
+    )
 
     try:
         assert sorted(grouped_df.index.to_list()) == harvester_config.EVENTS

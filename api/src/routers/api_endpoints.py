@@ -136,6 +136,7 @@ async def count_per_type(offset: str):
 
     return JSONResponse(data.to_dict())
 
+
 # TODO: endpoint focused on user activity
 # potentially update the data flow and include that in mongo
 """
