@@ -10,7 +10,7 @@ from celery.schedules import crontab
 from pydantic import BaseSettings
 
 data_dir_root = Path(os.sep, "opt", "data")
-diagrams_dir = Path("templates", "diagrams")
+diagrams_dir = Path("templates", "diagrams")    # TODO: move to shared module (update dockerfile and some imports)
 data_pipeline_queue = {"queue": "data_pipeline"}
 
 
