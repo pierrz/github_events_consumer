@@ -98,7 +98,9 @@ async def test_asyncio_download_github_events_unfiltered_records():
         for idx, part in enumerate(unfiltered_json_data):
             array += part
         count = len(array)
-        # assert len(array) == len(event_urls) * harvester_config.PER_PAGE      # sometimes the last page is not full ...
+
+        # sometimes the last page is not full ...
+        # assert len(array) == len(event_urls) * harvester_config.PER_PAGE
         assert len(event_urls) * (harvester_config.PER_PAGE - 1) <= count or count <= len(event_urls) * harvester_config.PER_PAGE
 
     except Exception as e:

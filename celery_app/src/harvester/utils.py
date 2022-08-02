@@ -4,7 +4,7 @@ Module containing core functions
 
 import aiohttp
 from config import harvester_config
-from src.harvester.errors import APILimitError
+from src.harvester.errors import APILimitError, GenericError
 
 
 async def get_session_data(url, auth: bool = True, mode: str = None):
@@ -17,7 +17,7 @@ async def get_session_data(url, auth: bool = True, mode: str = None):
                 params = {"Authorization": f"token {harvester_config.GITHUB_TOKEN}",
                           "Accept": "application/vnd.github+json"}
                 response = await client.get(url, headers=params)
-                # response = await client.get(url)
+
             else:
                 response = await client.get(url)
             print(f"Done downloading {url}")
@@ -26,8 +26,10 @@ async def get_session_data(url, auth: bool = True, mode: str = None):
                 return response
             return await response.json()
 
-    except Exception as e:
+    except KeyError as e:
         APILimitError(e)
+    except Exception as e:
+        GenericError(e)
 
 
 async def get_events_urls():
@@ -46,3 +48,5 @@ async def get_events_urls():
 
     except KeyError as e:
         APILimitError(e)
+    except Exception as e:
+        GenericError(e)

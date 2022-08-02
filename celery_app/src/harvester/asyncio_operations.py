@@ -10,7 +10,7 @@ from typing import Dict, Iterable, List, Tuple
 
 import pandas as pd
 from config import harvester_config
-from src.harvester.errors import APILimitError, EmptyResults
+from src.harvester.errors import EmptyResults, GenericError
 from src.harvester.utils import get_session_data
 
 
@@ -29,16 +29,20 @@ def download(func):
                 data = await get_session_data(url)
             return await func(data, **kwargs)
 
+        except TypeError as e:
+            EmptyResults(e)
         except Exception as e:
-            APILimitError(e)
+            GenericError(e)
 
     async def inner(
         urls: Iterable[str], auth: bool = True, **kwargs
     ) -> List[Tuple[str, bytes]]:
         try:
             return await asyncio.gather(*[get(url, auth, **kwargs) for url in urls])
-        except Exception as e:
+        except TypeError as e:
             EmptyResults(e)
+        except Exception as e:
+            GenericError(e)
 
     return inner
 
