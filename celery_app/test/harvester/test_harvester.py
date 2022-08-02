@@ -39,7 +39,7 @@ async def test_write_data_to_file(json_sample_dict):
     """
 
     if not harvester_config.DATA_DIR.exists():
-        os.mkdir(harvester_config.DATA_DIR)
+        Path.mkdir(harvester_config.DATA_DIR, parents=True)
 
     filepath = Path(harvester_config.DATA_DIR, "write-test.json")
     await write(11, json_sample_dict, "1984-12-31T07:59", path=filepath)
@@ -57,7 +57,7 @@ async def test_asyncio_write_loop(json_array_dict):
     """
 
     test_output_dir = Path(harvester_config.DATA_DIR, "test")
-    os.mkdir(test_output_dir)
+    Path.mkdir(test_output_dir, parents=True)
     await write_aio(json_array_dict, test_output_dir)
 
     assert len(list(os.scandir(test_output_dir))) == len(json_array_dict)
@@ -124,4 +124,4 @@ async def test_asyncio_download_github_events_filtered_df():
     is_valid = (grouped_df["count"] > 0).unique()[0]
     assert is_valid
 
-    shutil.rmtree(harvester_config.DATA_DIR)
+    # shutil.rmtree(harvester_config.DATA_DIR)

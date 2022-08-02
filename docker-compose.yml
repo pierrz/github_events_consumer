@@ -15,7 +15,8 @@ x-github_events_consumer-celery:
     GITHUB_TOKEN: "${GITHUB_TOKEN}"
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
-    - "${VOLUME_MOUNT}"
+    - ./data:/opt/data
+#    - "${VOLUME_MOUNT}"
 
 volumes:
   github_events_consumer_db:

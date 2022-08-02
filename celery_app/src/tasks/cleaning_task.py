@@ -17,14 +17,19 @@ def clean_local_files(args: List[int], wait_minutes: int):
     """
 
     file_count, page_range = args
-    threshold = page_range * wait_minutes
+    # threshold = page_range * wait_minutes
 
-    if file_count >= threshold:
+    rest_minutes = wait_minutes - int(file_count / page_range)
 
+    # if file_count >= threshold:
+    if rest_minutes == 0:
         logger.info("Cleaning task initialised ...")
         shutil.rmtree(pyspark_config.PROCESSED_DIR)
         logger.info(f"{file_count} files were deleted.")
 
     else:
-        rest = (threshold - file_count) / page_range
-        logger.info(f"=> {int(rest)} minutes remaining before next cleaning operation.")
+        # rest = (threshold - file_count) / page_range
+        # logger.info(f"=> {int(rest)} minutes remaining before next cleaning operation.")
+        logger.info(
+            f"=> {rest_minutes} minutes remaining before next cleaning operation."
+        )

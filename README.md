@@ -15,7 +15,7 @@ The repository itself is based on the ['biggie' project](https://github.com/pier
 ### Installation
 
 #### Environment
-You have to create the `.env` environment file.
+You have to create the `.env` environment file and use/create a Github token for it.
 Eventually tweak the schedule parameter for the cleaning task (see **"Data streaming"** section below.).
 
 If you plan to use the same Github-actions CI file, you need to create the same secrets

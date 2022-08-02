@@ -3,6 +3,7 @@ Loads required data from JSON files into MongoDB
 """
 
 import os
+from pathlib import Path
 from typing import List
 
 from config import pyspark_config
@@ -18,7 +19,7 @@ def run_pyspark(page_range: int) -> List[int]:
     """
 
     if not pyspark_config.PROCESSED_DIR.exists():
-        os.mkdir(pyspark_config.PROCESSED_DIR)
+        Path.mkdir(pyspark_config.PROCESSED_DIR, parents=True)
 
     logger.info("Initiating data loading task to Mongo ...")
     SparkJobFromJson()

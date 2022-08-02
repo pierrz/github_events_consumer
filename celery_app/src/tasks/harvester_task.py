@@ -3,8 +3,8 @@ Harvests paginated data from the GitHub Events API
 """
 
 import asyncio
-import os
 import time
+from pathlib import Path
 from typing import Union
 
 from config import harvester_config
@@ -20,7 +20,7 @@ def run_harvester() -> Union[int, None]:
     """
 
     if not harvester_config.DATA_DIR.exists():
-        os.mkdir(harvester_config.DATA_DIR)
+        Path.mkdir(harvester_config.DATA_DIR, parents=True)
 
     try:
 
