@@ -84,11 +84,13 @@ async def test_asyncio_download_github_events():
     """
 
     urls = await get_events_urls()
+    # urls = get_events_urls()
 
     # json_data_raw = await asyncio.run(download_github_events(urls, filtered=False))
-    # json_data_raw = await asyncio.run(download_github_events(urls))
-    async with await asyncio.run(download_github_events(urls), debug=True) as json_data_raw:
-        assert await len(json_data_raw) == urls * harvester_config.PER_PAGE
+    json_data_raw = await asyncio.run(download_github_events(urls))
+    print(urls)
+    # async with asyncio.run(download_github_events(urls), debug=True) as json_data_raw:
+    assert len(json_data_raw) == urls * harvester_config.PER_PAGE
 
     # json_data_filtered = asyncio.run(download_github_events(urls, output="df"))
     # sums = json_data_filtered.groupby(["type"]).sum()

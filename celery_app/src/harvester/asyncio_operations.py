@@ -31,7 +31,7 @@ async def download_aio(func):
     async def inner(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
         return await asyncio.gather(*[fetch(url) for url in urls])
 
-    return inner    # yu
+    return inner
 
 
 @download_aio
