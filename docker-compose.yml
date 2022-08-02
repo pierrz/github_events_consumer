@@ -12,6 +12,7 @@ x-github_events_consumer-celery:
     <<: *github_events_consumer-common-env
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+    GITHUB_TOKEN: "${GITHUB_TOKEN}"
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"

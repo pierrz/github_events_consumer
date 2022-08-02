@@ -6,12 +6,16 @@ import aiohttp
 from config import harvester_config
 
 
-async def get_session_data(url, mode: str = None):
+async def get_session_data(url, auth: bool = True, mode: str = None):
 
     print(f"Start downloading {url}")
     async with aiohttp.ClientSession() as client:
         # async with client.get(client) as response:
-        response = await client.get(url)
+        if auth:
+            print("-- authenticated --")
+            response = await client.get(url, headers={"token": harvester_config.GITHUB_TOKEN})
+        else:
+            response = await client.get(url)
         print(f"Done downloading {url}")
 
         if mode == "response":

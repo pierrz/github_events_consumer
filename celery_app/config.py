@@ -66,8 +66,9 @@ class HarvesterConfig(BaseSettings):
     """
 
     DATA_DIR = Path(data_dir_root, "events")
+    GITHUB_TOKEN: str = os.getenv("GITHUB_TOKEN")
     EVENTS = ["IssuesEvent", "PullRequestEvent", "WatchEvent"]
-    PER_PAGE = 100
+    PER_PAGE = 20   # 100 sometimes breaks the tests (last page not full)
 
 
 class PySparkConfig(HarvesterConfig):

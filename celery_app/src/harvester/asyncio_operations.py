@@ -13,7 +13,7 @@ from config import harvester_config
 from src.harvester.utils import get_session_data
 
 
-async def download_aio(func):
+def download(func):
     """
     Async loop to download a list of urls
     :param func: the function actually cleaning the parsed data
@@ -24,18 +24,30 @@ async def download_aio(func):
     #     data = await get_session(url)
     #     return await func(data, **kwargs)
 
-    async def fetch(url):
-        data = await get_session_data(url)
-        return await func(data)
+    async def fetch(url, auth, **kwargs):
+        if auth:
+            data = await get_session_data(url, auth=auth)
+        else:
+            data = await get_session_data(url)
+        return await func(data, **kwargs)
 
-    async def inner(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
-        return await asyncio.gather(*[fetch(url) for url in urls])
+    async def inner(urls: Iterable[str], auth: bool = True, **kwargs) -> List[Tuple[str, bytes]]:
+        return await asyncio.gather(*[fetch(url, auth, **kwargs) for url in urls])
+
+    # # async def fetch(url):
+    #     # data = await get_session_data(url)
+    #     # return await func(data)
+    #
+    # async def inner(url: str):
+    #     data = await get_session_data(url)
+    #     # return await func(data)
+    #     return await asyncio.gather(*[fetch(url) for url in urls])
 
     return inner
 
 
-@download_aio
-async def download_test(data) -> Iterable[Dict]:
+@download
+async def download_test(data, auth: bool = False) -> Iterable[Dict]:
     """
     For testing purpose (passthrough)
     :param data: the received data
@@ -43,9 +55,18 @@ async def download_test(data) -> Iterable[Dict]:
     """
 
     return data
+# @download_aio
+# async def download_test(urls) -> Iterable[Dict]:
+#     """
+#     For testing purpose (passthrough)
+#     :param urls: the received data
+#     :return: the received data
+#     """
+#
+#     return await asyncio.gather(*urls)
 
 
-@download_aio
+@download
 async def download_github_events(data, filtered: bool = True, output: str = None) -> Iterable[Dict]:
     """
     Handles downloads from the GitHub Events API
@@ -66,6 +87,38 @@ async def download_github_events(data, filtered: bool = True, output: str = None
     if output == "df":
         return df
     return df.to_dict("records")
+
+
+# async def download_aio_loop(func):
+#     """
+#     Async loop to download a list of urls
+#     :param urls: the list of urls to download
+#     :return: the retrieved data as an array
+#     """
+#     async def inner(urls: str):
+#         return await asyncio.gather(*[func(url) for url in urls])
+#
+#     return inner
+#
+#
+# @download_aio_loop
+# async def download_aio(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
+#     """
+#     Async loop to download a list of urls
+#     :param urls: the list of urls to download
+#     :return: the retrieved data as an array
+#     """
+#     return await download_github_events(urls)
+#
+#
+# @download_aio_loop
+# async def download_aio_test(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
+#     """
+#     Async loop to download a list of urls
+#     :param urls: the list of urls to download
+#     :return: the retrieved data as an array
+#     """
+#     return await download_test(urls)
 
 
 # async def download_aio(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
