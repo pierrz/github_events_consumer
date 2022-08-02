@@ -10,6 +10,7 @@ from celery.schedules import crontab
 from pydantic import BaseSettings
 
 data_dir_root = Path(os.sep, "opt", "data")
+diagrams_dir = Path("templates", "diagrams")
 data_pipeline_queue = {"queue": "data_pipeline"}
 
 

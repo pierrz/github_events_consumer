@@ -16,6 +16,7 @@ x-github_events_consumer-celery:
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"
+    - ./data/diagrams:/opt/data/diagrams
 
 volumes:
   github_events_consumer_vmongo:
@@ -80,6 +81,8 @@ services:
       - "8000:8000"
     profiles:
       - prod
+    volumes:
+      - ./data/diagrams:/opt/api/templates/diagrams
 
   celery_test:
     container_name: github_events_consumer_celery_test
