@@ -37,15 +37,11 @@ def dataframe_from_mongo_data(db_data):
     :return: the prepared/cleaned dataframe
     """
 
-    df = pd.DataFrame(db_data)
-    # print(df)
-    # print(df.size)
-    # print(df.shape)
-    # print(df.columns)
-    if df.shape[0] > 1:     # at least 2 rows to get an interval
-        df.drop(columns=["_id"])
+    raw_df = pd.DataFrame(db_data)
+    if raw_df.shape[0] > 1:  # at least 2 rows to get an interval
+        raw_df.drop(columns=["_id"])
         # drop_duplicates to cover potential overlaps from the GitHub events API
-        clean_df = df.drop_duplicates().replace(to_replace=[np.nan], value=[""])
+        clean_df = raw_df.drop_duplicates().replace(to_replace=[np.nan], value=[""])
         return clean_df
     return None
 
@@ -61,14 +57,14 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = None)
     """
 
     # data
-    db = init_db_connection()
+    db = init_db_connection()   # pylint: disable=C0103
     db_data = db.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
-    df = dataframe_from_mongo_data(db_data).sort_values(by="created_at")
+    raw_df = dataframe_from_mongo_data(db_data).sort_values(by="created_at")
 
     if size is not None and size > 2:
-        results_df = df.tail(size).reset_index()
+        results_df = raw_df.tail(size).reset_index()
     else:
-        results_df = df.reset_index()
+        results_df = raw_df.reset_index()
 
     dates = pd.to_datetime(results_df["created_at"]).rename("#PR")
     deltas = dates.diff().dt.total_seconds().drop(index=0)
@@ -80,7 +76,9 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = None)
     fig = px.line(plot_df, x="#PR", y="delta (seconds)")
     fig.update_xaxes(nticks=plot_df.shape[0])  # shows only integers for that axe
 
-    title_text = f"<span style='font-weight:800;'>PR deltas timeline</span> [{repo_name}]"
+    title_text = (
+        f"<span style='font-weight:800;'>PR deltas timeline</span> [{repo_name}]"
+    )
     if size is not None and size < 3:
         title_text += "<br><span style='font-size: .8rem;'>/!\\ the required size is too small (< 2)</span>"
     fig.update_layout(title_text=title_text)
@@ -111,18 +109,22 @@ async def pr_average_delta(repo_name: str):
     :return: a json response
     """
 
-    db = init_db_connection()
+    db = init_db_connection()   # pylint: disable=C0103
     db_data = db.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
     results_df = dataframe_from_mongo_data(db_data)
 
     if results_df is not None:
         dates = pd.to_datetime(results_df["created_at"])
         deltas = dates.diff().dt.total_seconds()
-        average_pr = round(deltas.drop(index=0).mean(), 3)  # rounded to millisecond floats
+        average_pr = round(
+            deltas.drop(index=0).mean(), 3
+        )  # rounded to millisecond floats
         response_data = {"pr_average_time[seconds]": average_pr}
 
     else:
-        response_data = {"pr_average_time[error]": f"only 1 PullRequestEvent retrieved for '{repo_name}' (2 events minimum)"}
+        response_data = {
+            "pr_average_time[error]": f"only 1 PullRequestEvent retrieved for '{repo_name}' (2 events minimum)"
+        }
 
     return JSONResponse(response_data)
 
@@ -142,7 +144,7 @@ async def count_per_type(offset: str):
     ).isoformat()
     offset_filter = {"created_at": {"$lte": f"{time_with_offset}"}}
 
-    db = init_db_connection()
+    db = init_db_connection()   # pylint: disable=C0103
     db_data = db.event.find(offset_filter)
     results_df = dataframe_from_mongo_data(db_data)
 

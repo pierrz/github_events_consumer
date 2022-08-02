@@ -14,8 +14,10 @@ async def get_session_data(url, auth: bool = True, mode: str = None):
         async with aiohttp.ClientSession() as client:
 
             if auth:
-                params = {"Authorization": f"token {harvester_config.GITHUB_TOKEN}",
-                          "Accept": "application/vnd.github+json"}
+                params = {
+                    "Authorization": f"token {harvester_config.GITHUB_TOKEN}",
+                    "Accept": "application/vnd.github+json",
+                }
                 response = await client.get(url, headers=params)
 
             else:

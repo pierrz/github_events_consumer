@@ -2,7 +2,7 @@
 Module dedicated to FastAPI endpoints testing
 """
 
-from test.base_test import EndpointTestBase
+from test.base_test import EndpointTestBase  # pylint: disable=E0611
 
 import pytest
 from fastapi.testclient import TestClient

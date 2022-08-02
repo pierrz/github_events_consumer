@@ -101,7 +101,10 @@ async def test_asyncio_download_github_events_unfiltered_records():
 
         # sometimes the last page is not full ...
         # assert len(array) == len(event_urls) * harvester_config.PER_PAGE
-        assert len(event_urls) * (harvester_config.PER_PAGE - 1) <= count or count <= len(event_urls) * harvester_config.PER_PAGE
+        assert (
+            len(event_urls) * (harvester_config.PER_PAGE - 1) <= count
+            or count <= len(event_urls) * harvester_config.PER_PAGE
+        )
 
     except Exception as e:
         EmptyResults(e)
@@ -121,7 +124,10 @@ async def test_asyncio_download_github_events_filtered_df():
 
     try:
         grouped_df = (
-            pd.concat(df_list).groupby(["type"]).sum().rename(columns={"public": "count"})
+            pd.concat(df_list)
+            .groupby(["type"])
+            .sum()
+            .rename(columns={"public": "count"})
         )
 
         try:
