@@ -105,7 +105,7 @@ async def write(
 
 async def write_aio(data: Iterable[Dict], output_dir: Path):
     """
-    Write data into JSON files.
+    Write data into JSON files with a trimmed timestamp (date-hour-minute only).
     :param data: array of dictionaries
     :param output_dir: the directory where the files will be written
     :return: does its thing
