@@ -121,5 +121,6 @@ async def test_asyncio_download_github_events_filtered_df():
             assert event in harvester_config.EVENTS
 
     # should always have at least 1 match from the required events
-    is_valid = (grouped_df["count"] > 0).unique()[0]
-    assert is_valid
+    valid_flags = (grouped_df["count"] > 0).unique()
+    assert len(valid_flags) == 1
+    assert valid_flags[0]
