@@ -24,10 +24,9 @@ def run_harvester() -> Union[int, None]:
 
     try:
 
-        # urls = await get_events_urls()
-        urls = get_events_urls()
-
+        urls = asyncio.run(get_events_urls())
         logger.info(f"Retrieved {len(urls)} event pages")
+
         start_time = time.time()
         json_data = asyncio.run(download_github_events(urls))
         asyncio.run(write_aio(json_data, harvester_config.DATA_DIR))

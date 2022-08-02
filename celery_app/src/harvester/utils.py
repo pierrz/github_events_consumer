@@ -11,7 +11,6 @@ async def get_session_data(url, auth: bool = True, mode: str = None):
     print(f"Start downloading {url}")
     async with aiohttp.ClientSession() as client:
         if auth:
-            print("-- authenticated --")
             response = await client.get(
                 url, headers={"token": harvester_config.GITHUB_TOKEN}
             )
@@ -30,7 +29,6 @@ async def get_events_urls():
 
     response = await get_session_data(base_url, mode="response")
     last_page = int(str(response.links["last"]["url"])[-1])
-    print(f"==> {last_page}")
 
     urls = []
     for page in list(range(1, last_page + 1)):
