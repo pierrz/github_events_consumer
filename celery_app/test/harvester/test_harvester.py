@@ -99,12 +99,14 @@ async def test_asyncio_download_github_events_unfiltered_records():
             array += part
         count = len(array)
 
-        # sometimes the last page is not full ...
-        # assert len(array) == len(event_urls) * harvester_config.PER_PAGE
-        assert (
-            len(event_urls) * (harvester_config.PER_PAGE - 1) <= count
-            or count <= len(event_urls) * harvester_config.PER_PAGE
-        )
+        try:
+            assert len(array) == len(event_urls) * harvester_config.PER_PAGE
+        except AssertionError:
+            # sometimes the last page is not full ...
+            assert (
+                (len(event_urls) - 1) * (harvester_config.PER_PAGE) < count
+                and count < len(event_urls) * harvester_config.PER_PAGE
+            )
 
     except Exception as e:
         EmptyResults(e)
