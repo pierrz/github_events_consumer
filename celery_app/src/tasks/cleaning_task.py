@@ -1,11 +1,12 @@
 """
 Cleaning task aka deleting all files in the local 'data/processed' directory and related Mongo collection
 """
-
+import os
 import shutil
+from pathlib import Path
 from typing import List
 
-from config import pyspark_config
+from config import data_dir_root, diagrams_dir, pyspark_config
 from worker import celery, logger
 
 
@@ -17,14 +18,24 @@ def clean_local_files(args: List[int], wait_minutes: int):
     """
 
     file_count, page_range = args
-    threshold = page_range * wait_minutes
+    rest_minutes = wait_minutes - int(file_count / page_range)
 
-    if file_count >= threshold:
+    if rest_minutes <= 0:
 
         logger.info("Cleaning task initialised ...")
         shutil.rmtree(pyspark_config.PROCESSED_DIR)
-        logger.info(f"{file_count} files were deleted.")
+        logger.info(f"- {file_count} data files were deleted.")
+
+        templates_dir = Path(data_dir_root, diagrams_dir)
+        diag_count = 0
+        with os.scandir(templates_dir) as it:
+            for entry in it:
+                if entry.is_file():
+                    os.remove(Path(entry))
+                    diag_count += 1
+        logger.info(f"- {diag_count} HTML diagrams were deleted.")
 
     else:
-        rest = (threshold - file_count) / page_range
-        logger.info(f"=> {int(rest)} minutes remaining before next cleaning operation.")
+        logger.info(
+            f"=> {rest_minutes} minutes remaining before next cleaning operation."
+        )

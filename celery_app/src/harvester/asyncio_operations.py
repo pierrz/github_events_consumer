@@ -8,69 +8,79 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
-import aiohttp
 import pandas as pd
+from config import harvester_config
+from src.harvester.errors import EmptyResults, GenericError
+from src.harvester.utils import get_session_data
 
 
 def download(func):
     """
-    Decorator function meant to download URLs
-    :param func: the function used along this decorator
-    :return: the downloaded data
+    Async loop to download a list of urls
+    :param func: the function actually cleaning the parsed data
+    :return: the retrieved data as an array
     """
 
-    async def inner(url):
-        print(f"Start downloading {url}")
-        async with aiohttp.ClientSession() as session:
-            resp = await session.get(url)
-            data = await resp.json()
-        print(f"Done downloading {url}")
-        return await func(data)
+    async def get(url, auth, **kwargs):
+        try:
+            if auth:
+                data = await get_session_data(url, auth=auth)
+            else:
+                data = await get_session_data(url)
+            return await func(data, **kwargs)
+
+        except TypeError as e:
+            EmptyResults(e)
+        except Exception as e:
+            GenericError(e)
+
+    async def inner(
+        urls: Iterable[str], auth: bool = True, **kwargs
+    ) -> List[Tuple[str, bytes]]:
+        try:
+            return await asyncio.gather(*[get(url, auth, **kwargs) for url in urls])
+        except TypeError as e:
+            EmptyResults(e)
+        except Exception as e:
+            GenericError(e)
 
     return inner
 
 
 @download
-async def download_test(data):
+async def download_test(data, auth: bool = False) -> Iterable[Dict]:
     """
     For testing purpose (passthrough)
     :param data: the received data
     :return: the received data
     """
+
     return data
 
 
 @download
-async def download_github_events(data):
+async def download_github_events(
+    data, filtered: bool = True, output: str = None
+) -> Iterable[Dict]:
     """
-    Handles downloads from the Marvel API
+    Handles downloads from the GitHub Events API
     :param data: the received data
+    :param filtered: allow for production data cleaning (enabled by default)
+    :param output: how the data is exported (json array per default)
     :return: the filtered data
     """
 
-    df = pd.DataFrame(data)
-    mask = df["type"].isin(["WatchEvent", "PullRequestEvent", "IssuesEvent"])
-    required_data = df[mask].to_dict("records")
-    return required_data
+    raw_df = pd.DataFrame(data)
 
+    if filtered:
+        mask = raw_df["type"].isin(harvester_config.EVENTS)
+        df = raw_df[mask]
+    else:
+        df = raw_df
 
-# TODO: create a decorator for the 2 following functions (same loop but different download 'def')
-async def download_aio(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
-    """
-    Async loop to download a list of urls
-    :param urls: the list of urls to download
-    :return: the retrieved data as an array
-    """
-    return await asyncio.gather(*[download_github_events(url) for url in urls])
-
-
-async def download_aio_test(urls: Iterable[str]) -> List[Tuple[str, bytes]]:
-    """
-    Async loop to download a list of urls
-    :param urls: the list of urls to download
-    :return: the retrieved data as an array
-    """
-    return await asyncio.gather(*[download_test(url) for url in urls])
+    if output == "df":
+        return df
+    return df.to_dict("records")
 
 
 async def write(
@@ -85,17 +95,17 @@ async def write(
     :param path: for testing purpose, used to bypass the file naming pattern
     :return: write the file
     """
-    print(f"Start writing page {idx}")
+    print(f"Start writing page {idx} ...")
     if path is None:
         path = Path(output_dir, f"{timestamp}_page-{idx}.json")
     with open(path, "w", encoding="utf8") as output_file:
         json.dump(page, output_file, indent=4)
-    print(f"Done writing page {idx}")
+    print(f"=> saved as .../'{path.name}'")
 
 
 async def write_aio(data: Iterable[Dict], output_dir: Path):
     """
-    Write data into JSON files.
+    Write data into JSON files with a trimmed timestamp (date-hour-minute only).
     :param data: array of dictionaries
     :param output_dir: the directory where the files will be written
     :return: does its thing

@@ -10,6 +10,7 @@ from celery.schedules import crontab
 from pydantic import BaseSettings
 
 data_dir_root = Path(os.sep, "opt", "data")
+diagrams_dir = Path(data_dir_root, "diagrams")
 data_pipeline_queue = {"queue": "data_pipeline"}
 
 
@@ -21,7 +22,6 @@ class CeleryConfig(BaseSettings):
     broker_url = os.getenv("CELERY_BROKER_URL")
     result_backend = os.getenv("CELERY_RESULT_BACKEND")
     imports = [
-        "src.tasks.test_task",
         "src.tasks.harvester_task",
         "src.tasks.pyspark_task",
         "src.tasks.cleaning_task",
@@ -36,8 +36,6 @@ class CeleryConfig(BaseSettings):
     task_acks_late = "Enabled"
 
     beat_schedule = {
-        # TODO: implement that task separately, only in celery_test
-        # 'test-task': {'task': 'dummy_task', 'schedule': crontab(minute='*'), 'args': [3]},
         "github-events-stream": {
             "task": "harvester_task",
             "schedule": crontab(minute="*"),
@@ -47,7 +45,6 @@ class CeleryConfig(BaseSettings):
                     "pyspark_task",
                     options={
                         **data_pipeline_queue,
-                        #
                         "link": signature(
                             "cleaning_task",
                             kwargs={"wait_minutes": 30},
@@ -66,6 +63,9 @@ class HarvesterConfig(BaseSettings):
     """
 
     DATA_DIR = Path(data_dir_root, "events")
+    GITHUB_TOKEN: str = os.getenv("GITHUB_TOKEN")
+    EVENTS = ["IssuesEvent", "PullRequestEvent", "WatchEvent"]
+    PER_PAGE = 50
 
 
 class PySparkConfig(HarvesterConfig):

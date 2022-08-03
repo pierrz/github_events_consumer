@@ -15,7 +15,7 @@ The repository itself is based on the ['biggie' project](https://github.com/pier
 ### Installation
 
 #### Environment
-You have to create the `.env` environment file.
+You have to create the `.env` environment file and use/create a Github token for it.
 Eventually tweak the schedule parameter for the cleaning task (see **"Data streaming"** section below.).
 
 If you plan to use the same Github-actions CI file, you need to create the same secrets
@@ -56,6 +56,20 @@ See `kwargs={"wait_minutes": 30}` in the `beat_schedule` parameter in [**`celery
 
 <br>
 
+#### Data streaming with monitoring
+Spin up the Mongo-Express container to access the Mongo-Express and Flower UI
+along the Celery production container.
+```
+docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
+  --profile monitoring \
+  up
+```
+
+<br>
+
 #### API container
 Just to have the FastAPI container up
 ```
@@ -64,10 +78,14 @@ docker-compose up api_prod
 
 <br>
 
-#### Monitoring
-Spin up the Mongo-Express container to access the Mongo-Express and Flower UI
+#### Monitoring and Production containers
+Both production containers as well as both monitoring containers.
 ```
-docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml --profile monitoring up
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
+  --profile prod --profile monitoring \
+  up
 ```
 
 <br>
@@ -90,9 +108,14 @@ The `nginx` configuration files are:
 `conf/nginx/monitor_docker.conf`
 <br>
 
-Finally run the `docker-compose` command with the `live_prod` profile:
+Finally run the `docker-compose` command with the `live_prod` profile
+to spin up all that to the world:
 ```
-docker-compose --profile live_prod up
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.monitoring.yml \
+  --profile prod --profile monitoring --profile live_prod \
+  up
 ```
 
 <br>

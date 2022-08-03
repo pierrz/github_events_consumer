@@ -2,7 +2,11 @@
 Configuration module
 """
 
+from pathlib import Path
+
 from pydantic import BaseSettings
+
+diagrams_dir = Path("templates", "diagrams")
 
 
 class Config(BaseSettings):

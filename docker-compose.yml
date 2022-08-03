@@ -12,13 +12,17 @@ x-github_events_consumer-celery:
     <<: *github_events_consumer-common-env
     CELERY_BROKER_URL: "${CELERY_BROKER_URL}"
     CELERY_RESULT_BACKEND: "${CELERY_RESULT_BACKEND}"
+    GITHUB_TOKEN: "${GITHUB_TOKEN}"
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"
+    - ./data/diagrams:/opt/data/diagrams  # necessary for the cleaning task
 
 volumes:
-  github_events_consumer_db:
-    name: github_events_consumer_db
+  github_events_consumer_vmongo:
+    name: github_events_consumer_vmongo
+  github_events_consumer_vrabbitmq:
+    name: github_events_consumer_vrabbitmq
 
 services:
 
@@ -47,10 +51,9 @@ services:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
     volumes:
-      - github_events_consumer_db:/data/db
-    # TODO: implement authentication for api container calls
-    # volumes:
-    #  - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+      - github_events_consumer_vmongo:/data/db
+      # TODO: implement authentication for api container calls
+      # - ./setup/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
 
   api_test:
     container_name: github_events_consumer_api_test
@@ -78,6 +81,8 @@ services:
       - "8000:8000"
     profiles:
       - prod
+    volumes:
+      - ./data/diagrams:/opt/api/templates/diagrams
 
   celery_test:
     container_name: github_events_consumer_celery_test
@@ -114,3 +119,6 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - github_events_consumer_vrabbitmq:/var/lib/rabbitmq
+      - ./logs/rabbitmq:/var/log/rabbitmq
