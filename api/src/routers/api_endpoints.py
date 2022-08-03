@@ -57,7 +57,7 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = None)
     """
 
     # data
-    db = init_db_connection()   # pylint: disable=C0103
+    db = init_db_connection()  # pylint: disable=C0103
     db_data = db.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
     raw_df = dataframe_from_mongo_data(db_data).sort_values(by="created_at")
 
@@ -109,7 +109,7 @@ async def pr_average_delta(repo_name: str):
     :return: a json response
     """
 
-    db = init_db_connection()   # pylint: disable=C0103
+    db = init_db_connection()  # pylint: disable=C0103
     db_data = db.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
     results_df = dataframe_from_mongo_data(db_data)
 
@@ -144,7 +144,7 @@ async def count_per_type(offset: str):
     ).isoformat()
     offset_filter = {"created_at": {"$lte": f"{time_with_offset}"}}
 
-    db = init_db_connection()   # pylint: disable=C0103
+    db = init_db_connection()  # pylint: disable=C0103
     db_data = db.event.find(offset_filter)
     results_df = dataframe_from_mongo_data(db_data)
 
