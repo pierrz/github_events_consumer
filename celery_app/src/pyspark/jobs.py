@@ -45,6 +45,7 @@ class SparkJobBase(ABC):
         """
 
 
+# import numpy as np
 class SparkJobFromJson(SparkJobBase):
     """
     Job meant to process JSON files from a specific directory
@@ -57,13 +58,22 @@ class SparkJobFromJson(SparkJobBase):
         if self.flag_files:
             self.move_data()
 
-    def get_input_array(self):
-
-        input_array = []
-        for file in os.scandir(self.input_dir_path):
-            input_array += load_json(file)
-
-        return input_array
+    def get_input_array(self) -> Iterable[Dict]:
+        """
+        Generate an array containing all new data as separate row per file
+        :return: a JSON array
+        """
+        # input_array = []
+        # i = 0
+        # for file in os.scandir(self.input_dir_path):
+        #     if i < 3:
+        #         print(file)
+        #     i += 1
+        #     # input_array += load_json(file)
+        #     input_array.append(load_json(file))
+        #
+        # return input_array
+        return [load_json(file) for file in os.scandir(self.input_dir_path)]
 
     def process_and_load_data(self):
         try:

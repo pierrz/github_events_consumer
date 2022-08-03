@@ -156,19 +156,3 @@ async def count_per_type(offset: str):
     )
 
     return JSONResponse(data.to_dict())
-
-
-# TODO: endpoint focused on user activity
-# potentially update the data flow and include that in mongo
-# @router.get("/user_stats")
-# async def user_stats(actor_login):
-#     """
-#     "actor": {
-#                 "id": 49699333,
-#                 "login": "dependabot[bot]",
-#                 "display_login": "dependabot",
-#                 "gravatar_id": "",
-#                 "url": "https://api.github.com/users/dependabot[bot]",
-#                 "avatar_url": "https://avatars.githubusercontent.com/u/49699333?"
-#             },
-# """

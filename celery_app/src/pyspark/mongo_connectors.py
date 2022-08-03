@@ -56,12 +56,15 @@ class DataframeMaker(MongoCollection, ABC):
         Takes the input data and clean/normalise it
         :return: does its thing
         """
-        print("=> Normalising pandas dataframe ...")
-        mapper = {}
+        print("=> Normalising data ...")
+        print(len(input_array))
         flat_df: pd.DataFrame = pd.json_normalize(input_array)
+        print("=> ... data normalised.")
 
         # hack to load Mongo seamlessly
+        print("=> Preparing dataframe for Mongo ...")
         columns_to_drop = []
+        mapper = {}
         for col in flat_df.columns.to_list():
             if col.startswith("payload.") or col.startswith("org."):
                 columns_to_drop.append(col)
@@ -76,7 +79,7 @@ class DataframeMaker(MongoCollection, ABC):
 
         flat_df.rename(columns=mapper, inplace=True)
 
-        print(" ... dataframe normalised")
+        print(" ... dataframe finalised.")
 
         columns = flat_df.columns.to_list()
         print(f"with {flat_df.shape[0]} rows and {len(columns)} columns")

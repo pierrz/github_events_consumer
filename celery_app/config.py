@@ -39,8 +39,6 @@ class CeleryConfig(BaseSettings):
     task_acks_late = "Enabled"
 
     beat_schedule = {
-        # TODO: implement that task separately, only in celery_test
-        # 'test-task': {'task': 'dummy_task', 'schedule': crontab(minute='*'), 'args': [3]},
         "github-events-stream": {
             "task": "harvester_task",
             "schedule": crontab(minute="*"),
@@ -50,10 +48,9 @@ class CeleryConfig(BaseSettings):
                     "pyspark_task",
                     options={
                         **data_pipeline_queue,
-                        #
                         "link": signature(
                             "cleaning_task",
-                            kwargs={"wait_minutes": 30},
+                            kwargs={"wait_minutes": 10},
                             options=data_pipeline_queue,
                         ),
                     },
