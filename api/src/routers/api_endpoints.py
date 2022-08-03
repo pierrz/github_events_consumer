@@ -30,10 +30,11 @@ async def api_live() -> JSONResponse:
     return JSONResponse({"message": "Hello, World"})
 
 
-def dataframe_from_mongo_data(db_data):
+def dataframe_from_mongo_data(db_data, sort_by: str = None):
     """
     Prepares the data retrieved from Mongo to be compliant with pd.DataFrame and JSONResponse
     :param db_data: data retrieved from Mongo
+    :param sort_by: the column to sort the dataframe with
     :return: the prepared/cleaned dataframe
     """
 
@@ -42,7 +43,11 @@ def dataframe_from_mongo_data(db_data):
         raw_df.drop(columns=["_id"])
         # drop_duplicates to cover potential overlaps from the GitHub events API
         clean_df = raw_df.drop_duplicates().replace(to_replace=[np.nan], value=[""])
-        return clean_df
+
+        if sort_by is None:
+            return clean_df
+        return clean_df.sort_values(by=sort_by)
+
     return None
 
 
@@ -59,7 +64,8 @@ async def pr_deltas_timeline(request: Request, repo_name: str, size: int = None)
     # data
     db = init_db_connection()  # pylint: disable=C0103
     db_data = db.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
-    raw_df = dataframe_from_mongo_data(db_data).sort_values(by="created_at")
+    # raw_df = dataframe_from_mongo_data(db_data).sort_values(by="created_at")
+    raw_df = dataframe_from_mongo_data(db_data, "created_at")
 
     if size is not None and size > 2:
         results_df = raw_df.tail(size).reset_index()
@@ -111,7 +117,7 @@ async def pr_average_delta(repo_name: str):
 
     db = init_db_connection()  # pylint: disable=C0103
     db_data = db.event.find({"repo_name": repo_name, "type": "PullRequestEvent"})
-    results_df = dataframe_from_mongo_data(db_data)
+    results_df = dataframe_from_mongo_data(db_data, "created_at")
 
     if results_df is not None:
         dates = pd.to_datetime(results_df["created_at"])
