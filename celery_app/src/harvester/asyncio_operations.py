@@ -100,7 +100,7 @@ async def write(
         path = Path(output_dir, f"{timestamp}_page-{idx}.json")
     with open(path, "w", encoding="utf8") as output_file:
         json.dump(page, output_file, indent=4)
-    print(f"=> saved as {path.name}")
+    print(f"=> saved as .../'{path.name}'")
 
 
 async def write_aio(data: Iterable[Dict], output_dir: Path):
