@@ -6,7 +6,7 @@ import os
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List, Tuple
 
 # pylint: disable=E0611
 from config import pyspark_config
@@ -45,7 +45,6 @@ class SparkJobBase(ABC):
         """
 
 
-# import numpy as np
 class SparkJobFromJson(SparkJobBase):
     """
     Job meant to process JSON files from a specific directory
@@ -53,27 +52,35 @@ class SparkJobFromJson(SparkJobBase):
 
     def __init__(self):
         super().__init__()
-        self.input_array = self.get_input_array()
-        self.process_and_load_data()
-        if self.flag_files:
-            self.move_data()
+        json_array, invalid = self.get_input_array()
 
-    def get_input_array(self) -> Iterable[Dict]:
+        if invalid > 0:
+            print(f"There were {invalid} invalid or empty files.")
+
+        if len(json_array) > 0:
+            self.input_array = json_array
+            self.process_and_load_data()
+            if self.flag_files:
+                self.move_data()
+        else:
+            print("No data to import.")
+
+    def get_input_array(self) -> Tuple[Iterable[Dict], int]:
         """
         Generate an array containing all new data as separate row per file
-        :return: a JSON array
+        :return: a JSON array and the count of invalid files
         """
-        # input_array = []
-        # i = 0
-        # for file in os.scandir(self.input_dir_path):
-        #     if i < 3:
-        #         print(file)
-        #     i += 1
-        #     # input_array += load_json(file)
-        #     input_array.append(load_json(file))
-        #
-        # return input_array
-        return [load_json(file) for file in os.scandir(self.input_dir_path)]
+        input_array = []
+        invalid = 0
+        for file in os.scandir(self.input_dir_path):
+            data: List = load_json(file)
+
+            if data is not None:
+                input_array += data  # /!\ not .append() as data is a list
+            else:
+                invalid += 1
+
+        return input_array, invalid
 
     def process_and_load_data(self):
         try:

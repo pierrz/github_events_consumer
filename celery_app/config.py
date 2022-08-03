@@ -10,9 +10,7 @@ from celery.schedules import crontab
 from pydantic import BaseSettings
 
 data_dir_root = Path(os.sep, "opt", "data")
-diagrams_dir = Path(
-    "templates", "diagrams"
-)  # TODO: move to shared module (update dockerfile and some imports)
+diagrams_dir = Path(data_dir_root, "diagrams")
 data_pipeline_queue = {"queue": "data_pipeline"}
 
 
@@ -50,7 +48,7 @@ class CeleryConfig(BaseSettings):
                         **data_pipeline_queue,
                         "link": signature(
                             "cleaning_task",
-                            kwargs={"wait_minutes": 10},
+                            kwargs={"wait_minutes": 30},
                             options=data_pipeline_queue,
                         ),
                     },

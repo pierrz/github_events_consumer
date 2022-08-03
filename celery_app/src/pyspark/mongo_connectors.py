@@ -57,9 +57,7 @@ class DataframeMaker(MongoCollection, ABC):
         :return: does its thing
         """
         print("=> Normalising data ...")
-        print(len(input_array))
         flat_df: pd.DataFrame = pd.json_normalize(input_array)
-        print("=> ... data normalised.")
 
         # hack to load Mongo seamlessly
         print("=> Preparing dataframe for Mongo ...")
@@ -78,11 +76,10 @@ class DataframeMaker(MongoCollection, ABC):
             )  # reducing the loaded data (prod)
 
         flat_df.rename(columns=mapper, inplace=True)
-
-        print(" ... dataframe finalised.")
+        print(" ... dataframe finalised")
 
         columns = flat_df.columns.to_list()
-        print(f"with {flat_df.shape[0]} rows and {len(columns)} columns")
+        print(f"=> {flat_df.shape[0]} rows and {len(columns)} columns")
 
         # # extended logs (extra info for celery)
         # print(columns)

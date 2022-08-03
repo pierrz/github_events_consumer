@@ -20,14 +20,19 @@ def clean_local_files(args: List[int], wait_minutes: int):
     file_count, page_range = args
     rest_minutes = wait_minutes - int(file_count / page_range)
 
-    if rest_minutes == 0:
+    if rest_minutes <= 0:
+
         logger.info("Cleaning task initialised ...")
         shutil.rmtree(pyspark_config.PROCESSED_DIR)
         logger.info(f"- {file_count} data files were deleted.")
 
         templates_dir = Path(data_dir_root, diagrams_dir)
-        diag_count = len(os.listdir(templates_dir))
-        shutil.rmtree(templates_dir)
+        diag_count = 0
+        with os.scandir(templates_dir) as it:
+            for entry in it:
+                if entry.is_file():
+                    os.remove(Path(entry))
+                    diag_count += 1
         logger.info(f"- {diag_count} HTML diagrams were deleted.")
 
     else:

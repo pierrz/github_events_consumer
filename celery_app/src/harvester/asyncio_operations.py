@@ -95,12 +95,12 @@ async def write(
     :param path: for testing purpose, used to bypass the file naming pattern
     :return: write the file
     """
-    print(f"Start writing page {idx}")
+    print(f"Start writing page {idx} ...")
     if path is None:
         path = Path(output_dir, f"{timestamp}_page-{idx}.json")
     with open(path, "w", encoding="utf8") as output_file:
         json.dump(page, output_file, indent=4)
-    print(f"Done writing page {idx}")
+    print(f"=> saved as {path.name}")
 
 
 async def write_aio(data: Iterable[Dict], output_dir: Path):
