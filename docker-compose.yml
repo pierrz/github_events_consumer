@@ -16,7 +16,7 @@ x-github_events_consumer-celery:
   volumes:
     - ./logs/celery_app:/opt/celery_app/logs
     - "${VOLUME_MOUNT}"
-    - ./data/diagrams:/opt/data/diagrams
+    - ./data/diagrams:/opt/data/templates/diagrams
 
 volumes:
   github_events_consumer_vmongo:
